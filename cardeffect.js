@@ -1,4 +1,3 @@
-const { chooseTargetPlayer } = require("./player");
 
 function applyDiscardAll(game, player) {
   const color = game.currentColor;
@@ -65,13 +64,14 @@ function sevenRule(game, player) {
   const targets = game.players.filter(p => p.active && p !== player);
 
   if (targets.length === 0) return;
-
+  const { chooseTargetPlayer } = require("./player");
   const target = player.isAI ? targets[Math.floor(Math.random() * targets.length)] : chooseTargetPlayer(player, targets);
 
   console.log(`${player.name} swaps hands with ${target.name}`);
   const temp = player.hand;
   player.hand = target.hand;
   target.hand = temp;
+  console.log(`${player.name} choose to swap with ${target.name}`);
 }
 
 function zeroRule(game) {

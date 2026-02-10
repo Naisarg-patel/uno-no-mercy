@@ -54,7 +54,9 @@ async function runGame(game) {
     takeTurn(game);
     validateGameState(game);
     await sleep(500); // half second per turn
+    if(game.gameOver) break;
   }
+ 
 
   console.log("🏁 Game finished");
 }

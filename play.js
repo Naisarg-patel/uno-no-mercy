@@ -1,4 +1,3 @@
-const {nextPlayer, eliminatePlayer, decidePlayOrDraw} = require("./player");
 const {reshuffle} = require("./deck");
 const {RouletteDraw, chooseColor, applyDiscardAll, sevenRule, zeroRule} = require("./cardeffect");
 
@@ -27,7 +26,9 @@ function checkElimination(game, player) {
   if (!player.active) return false;
 
   if (player.hand.length >= 25) {
+    const { eliminatePlayer} = require("./player");
     eliminatePlayer(game, player);
+    checkWin(game, player);
     return true;
   }
   return false;
@@ -39,48 +40,48 @@ function applySpecialEffect(game, player, card) {
     return;
   }
 
+  const {nextPlayer} = require("./player");
+
   console.log(`Applying special effect of ${card.specialMove}`);
 
   switch (card.specialMove) {
     
     case "reverse":
-      console.log("Reversing direction");
       game.direction *= -1;
       break;
 
     case "skip":
-      console.log("Skipping next player");
       nextPlayer(game);
       break;
     
     case "draw2":
+      game.pendingDrawPenalties += 2;
+      break;
     case "draw4":
+      game.pendingDrawPenalties += 4;
+      break;
     case "wild_draw6":
+      game.pendingDrawPenalties += 6;
+      game.currentColor = player.isAI ? chooseColor(player) : game.currentColor;
+      break;
     case "wild_draw10":
-      game.pendingDrawPenalties += card.drawAmount;
-      game.currentColor = card.type === 'wild' ? chooseColor(player) : game.currentColor;
+      game.pendingDrawPenalties += 10;
+      game.currentColor = player.isAI ? chooseColor(player) : game.currentColor;
       break;      
 
     case "discard_all":
-      console.log("Applying discard all effect");
       applyDiscardAll(game, player);
-      checkElimination(game, player);
+      checkWin(game, player);
       break;
 
     case "skip_all":
-      console.log("Applying skip all effect");
-      game.players.forEach(p => {
-        if (p !== player) {
-          drawCards(game, p);
-        }
-      });
+      game.currentPlayerIndex = (game.currentPlayerIndex - game.direction + game.players.length) % game.players.length;
       break;
 
     case "wild_draw4":
-      console.log("Next player must draw 4 cards and color is chosen by current player directin change");
       game.direction *= -1;
-      game.pendingDrawPenalties += card.drawAmount;
-      game.currentColor = chooseColor(player);
+      game.pendingDrawPenalties += 4;
+      game.currentColor = player.isAI ? chooseColor(player) : game.currentColor;
       break;  
 
     case "roulette":
@@ -90,10 +91,12 @@ function applySpecialEffect(game, player, card) {
 
     case "seven":
       sevenRule(game, player);
+      nextPlayer(game);
       break;  
 
     case "zero":
       zeroRule(game, player);
+      nextPlayer(game);
       break;  
   }
 }
@@ -130,7 +133,9 @@ function drawCards(game, player) {
     player.hand.push(card);
 
     if(player.hand.length >= 25){
+      const {eliminatePlayer} = require("./player");
       eliminatePlayer(game, player);
+      checkWin(game, player);
       return null;
     }
 
@@ -156,19 +161,28 @@ function drawOneCard(game, player) {
 }
 
 
-function checkWin(game, player) {
-  if (player.hand.length === 0) {
-    game.gameOver = true;
-    console.log(`${player.name} wins!`);
-  }
-
+function checkWin(game) {
   const activePlayers = game.players.filter(p => p.active);
 
+
+  // 🏆 Last standing
   if (activePlayers.length === 1) {
     console.log(`🏆 ${activePlayers[0].name} wins (last standing)`);
     game.gameOver = true;
     return true;
   }
+
+  // 🎉 Normal win (hand empty)
+  for (const player of activePlayers) {
+    if (player.hand.length === 0) {
+      console.log(`🏆 ${player.name} wins!`);
+      game.gameOver = true;
+      return true;
+    }
+  }
+
+  return false;
 }
 
-module.exports = { isplayable, playCard, drawCards, checkWin, applySpecialEffect, checkElimination, hasPlayableCard };
+
+module.exports = { isplayable, playCard, drawCards, checkWin, applySpecialEffect, checkElimination, hasPlayableCard, drawOneCard };

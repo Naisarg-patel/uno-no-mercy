@@ -60,6 +60,7 @@ function ShuffleDeck(deck){
 }    
 
 function reshuffle(game){
+
     if(game.drawPile.length === 0){
         return;
     }

@@ -1,5 +1,6 @@
 const {isplayable} = require("./play");
 
+
 function aiChooseMove(game, player) {
   // 1. If draw penalty exists → try to stack
   if (game.pendingDrawPenalties > 0) {
