@@ -1,0 +1,86 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0c6b2c;
+  color: white;
+  text-align: center;
+}
+
+#playersBar {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 15px;
+}
+
+.player {
+  padding: 10px 15px;
+  background: rgba(0,0,0,0.4);
+  border-radius: 10px;
+}
+
+.player.active {
+  border: 2px solid yellow;
+}
+
+#table {
+  margin-top: 40px;
+}
+
+#discardPile {
+  display: flex;
+  justify-content: center;
+}
+
+.card {
+  width: 90px;
+  height: 130px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s;
+  color: white;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+}
+
+.red { background: #e53935; }
+.blue { background: #1e88e5; }
+.green { background: #43a047; }
+.yellow { background: #fdd835; color: black; }
+
+.back {
+  background: black;
+}
+
+#wild {
+  background: linear-gradient(45deg, red, yellow, green, blue);
+}
+
+#handContainer {
+  position: fixed;
+  bottom: 20px;
+  width: 100%;
+}
+
+#hand {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+#drawBtn {
+  position: fixed;
+  right: 20px;
+  bottom: 200px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}

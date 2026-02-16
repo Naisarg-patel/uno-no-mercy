@@ -2,7 +2,7 @@
 console.log("🔥 player.js loaded");
 
 function createPlayer(id,name, isAi = false) {
-  console.log(`Creating player: ${name} (AI: ${isAi})`);
+    console.log("player cretaed:", name);
     return {
        id,
        name,

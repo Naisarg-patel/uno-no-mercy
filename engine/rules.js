@@ -1,5 +1,5 @@
 const {aiChooseMove, chooseColor} = require("./ai");
-const {playCard, drawCards} = require("./play");
+const {playCard, drawCards, drawOneCard} = require("./play");
 
 
 function takeTurn(game) {

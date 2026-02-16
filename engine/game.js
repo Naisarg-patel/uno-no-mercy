@@ -1,9 +1,10 @@
 console.log("🔥 game.js loaded");
 
-const { createPlayer, nextPlayer } = require("./player");
+const { createPlayer } = require("./player");
 const { CreateDeck, ShuffleDeck } = require("./deck");
 const { playCard } = require("./play");
-const { takeTurn } = require("./rules");
+const { applySpecialEffect } = require('./cardeffect');
+const { takeTurn,checkWin,nextPlayer } = require("./rules");
 const { validateGameState } = require("./validateGameState");
 
 function creategame(players) {
@@ -26,7 +27,7 @@ function creategame(players) {
         }
     }while (illegalFirstCard.includes(firstCard.type)); 
 
-    return {
+    const game =  {
         players,
         drawPile: deck,
         discardPile: [firstCard],
@@ -38,7 +39,7 @@ function creategame(players) {
         gameOver: false,
         eliminatedPlayers: [],
     };
-    validateGameState(game);
+    
     return game;
 }    
 
@@ -62,4 +63,4 @@ async function runGame(game) {
 
 
 
-module.exports = { creategame, createPlayer, runGame, takeTurn, checkWin, validateGameState, nextPlayer, playCard};
+module.exports = {applySpecialEffect, creategame, createPlayer, runGame, takeTurn, checkWin, validateGameState, nextPlayer, playCard};

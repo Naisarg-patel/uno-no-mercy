@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>UNO Multiplayer</title>
+</head>
+<body>
+
+<div id="lobby">
+  <h2>UNO Multiplayer</h2>
+  <input id="name" placeholder="Your Name" />
+
+  <button onclick="createRoom()">Create Room</button>
+
+  <input id="roomInput" placeholder="Room ID" />
+  <button onclick="joinRoom()">Join Room</button>
+
+  <h3>Room ID: <span id="roomId"></span></h3>
+
+  <h3>Players</h3>
+  <ul id="players"></ul>
+
+  <button onclick="startGame()">Start Game</button>
+</div>
+
+<div id="game" style="display:none">
+  <h2>Game</h2>
+  <div id="topCard"></div>
+  <h3>Your Hand</h3>
+  <div id="hand"></div>
+  <button onclick="drawCard()">Draw</button>
+</div>
+
+<div id="game" style="display:none">
+
+  <!-- Players Info -->
+  <div id="playersBar"></div>
+
+  <!-- Center Table -->
+  <div id="table">
+    <div id="discardPile">
+      <div id="topCard" class="card back">UNO</div>
+    </div>
+  </div>
+
+  <div id="colorModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#333; padding:20px; border-radius:10px; text-align:center; z-index:1000;">
+    <h3 style="color:white;">Select Next Color</h3>
+    <button onclick="pickColor('red')" style="background:red; width:60px; height:60px; border:none; margin:5px;"></button>
+    <button onclick="pickColor('blue')" style="background:blue; width:60px; height:60px; border:none; margin:5px;"></button>
+    <button onclick="pickColor('green')" style="background:green; width:60px; height:60px; border:none; margin:5px;"></button>
+    <button onclick="pickColor('yellow')" style="background:yellow; width:60px; height:60px; border:none; margin:5px;"></button>
+</div>
+
+  <!-- Player Hand -->
+  <div id="handContainer">
+    <div id="hand"></div>
+  </div>
+
+  <button onclick="drawCard()" id="drawBtn">Draw</button>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="client.js"></script>
+</body>
+</html>

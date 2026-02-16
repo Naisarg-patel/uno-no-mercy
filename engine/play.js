@@ -1,3 +1,4 @@
+const { applySpecialEffect } = require("./cardeffect");
 
 function isplayable(card, game){
     if(game.pendingDrawPenalties > 0){
@@ -37,6 +38,11 @@ function checkElimination(game, player) {
 function playCard(game, player, cardIndex, chosenColor = null){
     const card = player.hand[cardIndex];
 
+    if (!card) {
+        console.log("No card found at index:", cardIndex);
+        return false; 
+    }
+
     if(!isplayable(card, game)){
         return false; // Invalid move
     }
@@ -48,6 +54,8 @@ function playCard(game, player, cardIndex, chosenColor = null){
     game.currentValue = card.value;
 
     applySpecialEffect(game, player, card);
+
+    return true;
 }
 
 function drawCards(game, player) {
