@@ -2,7 +2,7 @@ console.log("🔥 game.js loaded");
 
 const { createPlayer, nextPlayer } = require("./player");
 const { CreateDeck, ShuffleDeck } = require("./deck");
-const { checkWin, playCard } = require("./play");
+const { playCard } = require("./play");
 const { takeTurn } = require("./rules");
 const { validateGameState } = require("./validateGameState");
 
