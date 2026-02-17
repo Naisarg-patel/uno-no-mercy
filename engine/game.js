@@ -2,7 +2,7 @@ console.log("🔥 game.js loaded");
 
 const { createPlayer } = require("./player");
 const { CreateDeck, ShuffleDeck } = require("./deck");
-const { playCard } = require("./play");
+const { playCard, drawCards } = require("./play");
 const { applySpecialEffect } = require('./cardeffect');
 const { takeTurn,checkWin,nextPlayer } = require("./rules");
 const { validateGameState } = require("./validateGameState");
@@ -63,4 +63,4 @@ async function runGame(game) {
 
 
 
-module.exports = {applySpecialEffect, creategame, createPlayer, runGame, takeTurn, checkWin, validateGameState, nextPlayer, playCard};
+module.exports = {applySpecialEffect, creategame, createPlayer, runGame, takeTurn, checkWin, validateGameState, nextPlayer, playCard, drawCards};

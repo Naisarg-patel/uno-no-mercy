@@ -50,6 +50,13 @@ body {
   transform: translateY(-10px);
 }
 
+.card[data-color="wild"] {
+    background-color: #222; /* Dark background so text is visible */
+    color: white;
+    border: 2px dashed #fff;
+    font-weight: bold;
+}
+
 .red { background: #e53935; }
 .blue { background: #1e88e5; }
 .green { background: #43a047; }

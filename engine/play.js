@@ -1,14 +1,20 @@
 const { applySpecialEffect } = require("./cardeffect");
+const {decidePlayOrDraw, nextPlayer, checkWin} = require("./rules");
+const {ShuffleDeck} = require("./deck");
 
 function isplayable(card, game){
     if(game.pendingDrawPenalties > 0){
         return card.drawAmount > 0;
     }
 
+    // RULE 2: Wilds are ALWAYS playable (if no penalty is active)
+    if (card.type === 'wild' || card.color === 'wild') {
+        return true;
+    }
+
     return(
         card.color === game.currentColor ||
-        card.value === game.currentValue ||
-        card.type === 'wild'
+        card.value === game.currentValue 
     );
 }    
 
@@ -25,7 +31,6 @@ function checkElimination(game, player) {
   if (!player.active) return false;
 
   if (player.hand.length >= 25) {
-    const { eliminatePlayer} = require("./player");
     eliminatePlayer(game, player);
     checkWin(game, player);
     return true;
@@ -47,13 +52,19 @@ function playCard(game, player, cardIndex, chosenColor = null){
         return false; // Invalid move
     }
 
+    if (card.type === 'wild' || card.color === 'wild') {
+        if (!chosenColor) return false; // Fail if client didn't send a color
+        game.currentColor = chosenColor; 
+    } else {
+        game.currentColor = card.color;
+        game.currentValue = card.value;
+    }
+
     player.hand.splice(cardIndex, 1);
     game.discardPile.push(card);
 
-    game.currentColor = card.color === 'wild' ? chosenColor : card.color;
-    game.currentValue = card.value;
 
-    applySpecialEffect(game, player, card);
+    applySpecialEffect(game, player, card, nextPlayer);
 
     return true;
 }
@@ -73,7 +84,6 @@ function drawCards(game, player) {
     player.hand.push(card);
 
     if(player.hand.length >= 25){
-      const {eliminatePlayer} = require("./player");
       eliminatePlayer(game, player);
       checkWin(game, player);
       return null;

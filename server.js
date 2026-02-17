@@ -3,11 +3,9 @@ const http = require("http");
 const { Server } = require("socket.io");
 const path = require('path');
 
-const { creategame, takeTurn, checkWin, createPlayer, nextPlayer, playCard} = require("./engine/game");
-const { hostname } = require("os");
-const { aiChooseMove } = require("./engine/ai");
-const { drawOneCard, checkElimination } = require("./engine/play");
-const { nextTick } = require("process");
+const { creategame, takeTurn, checkWin, createPlayer, nextPlayer, playCard, drawCards} = require("./engine/game");
+const { drawOneCard, checkElimination, hasPlayableCard } = require("./engine/play");
+const { RouletteDraw } = require("./engine/cardeffect");
 
 const app = express();
 const server = http.createServer(app);
@@ -118,6 +116,18 @@ io.on("connection", socket => {
           return; 
       }
 
+      if(game.rouletteActive){
+        nextPlayer(game);
+        const victim = game.players[game.currentPlayerIndex];
+  
+        RouletteDraw(game, victim, game.currentColor);
+        game.rouletteActive = false;
+        nextPlayer(game);
+
+        sendGameState(roomId);
+        return;
+      }
+
       // 2. If play was successful, proceed
       checkWin(game);
       nextPlayer(game);
@@ -138,7 +148,7 @@ io.on("connection", socket => {
         if (!room || !room.game) return;
 
         const game = room.game;
-        const currentPlayer = game.player[game.currentPlayerIndex];
+        const currentPlayer = game.players[game.currentPlayerIndex];
 
         if(currentPlayer.id != socket.id){
           socket.emit("error", "It's not your turn!");
@@ -147,6 +157,7 @@ io.on("connection", socket => {
 
         if(game.pendingDrawPenalties > 0){
           const amount = game.pendingDrawPenalties;
+          console.log(`${currentPlayer.name} is taking a penalty of ${amount}`);
           for(let i = 0; i < amount; i++){
             drawOneCard(game, currentPlayer);
             checkElimination(game, currentPlayer);
@@ -156,9 +167,9 @@ io.on("connection", socket => {
           nextPlayer(game);
         }
         else{
-          drawCard(game, currentPlayer);
+          drawCards(game, currentPlayer);
 
-          if (!hasPlayableCard(player, game)) {
+          if (!hasPlayableCard(currentPlayer, game)) {
              nextPlayer(game); // Only skip if they STILL can't play (safety)
           }
         }
@@ -179,27 +190,6 @@ io.on("connection", socket => {
     });
 
 });
-
-function sendGameState(roomId) {
-  const room = getRoom(roomId);
-  if (!room || !room.game) return;
-
-  const game = room.game;
-
-  io.to(roomId).emit("gameState", {
-    currentPlayer: game.players[game.currentPlayerIndex].name,
-    discardTop: game.discardPile.at(-1),
-    players: game.players.map(p => ({
-      id: p.id,
-      name: p.name,
-      handCount: p.hand.length,
-      active: p.active
-    })),
-    gameOver : game.gameOver,
-    winner : game.gameOver ? game.players.find(p => p.active).name : null
-    
-  });
-}
 
 function sendGameState(roomId) {
   const room = rooms[roomId];

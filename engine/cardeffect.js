@@ -1,11 +1,9 @@
-
-function applySpecialEffect(game, player, card) {
+const{checkWin} = require("./rules")
+function applySpecialEffect(game, player, card, nextPlayer) {
 
   if(!player.active){
     return;
   }
-
-  const {nextPlayer} = require("./player");
 
   console.log(`Applying special effect of ${card.specialMove}`);
 
@@ -132,7 +130,7 @@ function sevenRule(game, player) {
   const targets = game.players.filter(p => p.active && p !== player);
 
   if (targets.length === 0) return;
-  const { chooseTargetPlayer } = require("./player");
+
   const target = player.isAI ? targets[Math.floor(Math.random() * targets.length)] : chooseTargetPlayer(player, targets);
 
   console.log(`${player.name} swaps hands with ${target.name}`);
@@ -155,4 +153,8 @@ function zeroRule(game) {
   }
 }
 
-module.exports = { applySpecialEffect, chooseColor, RouletteDraw, sevenRule, zeroRule, applyDiscardAll };
+function chooseTargetPlayer(player, targets) {
+  return targets[0];
+}
+
+module.exports = { applySpecialEffect, chooseColor, RouletteDraw, sevenRule, zeroRule, applyDiscardAll, chooseTargetPlayer };

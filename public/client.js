@@ -1,5 +1,6 @@
 const socket = io();
 let currentRoom = null;
+let isMyTurn = false;
 let myHand = [];
 let savedCardIndex = null;
 
@@ -36,18 +37,35 @@ function startGame() {
 
 function drawCard() {
   if (!currentRoom) return;
-  socket.emit("drawCard", { roomId: currentRoom });
+  // Now 'isMyTurn' and 'currentRoom' are available!
+    if (!isMyTurn) {
+        alert("It's not your turn!");
+        return;
+    }
+
+    draw.disabled = true;
+    socket.emit("drawCard", { roomId: currentRoom });  
 }
 
 function playCard(cardIndex) {
+  if(!isMyTurn ){
+    socket.emit("error", "not yout turn");
+  }
+
   const card = myHand[cardIndex];
 
-  if(card.type === 'wild'){
+  if(card.color === 'wild' || card.specialMove === "roulette" || card.type === "wild"){
     savedCardIndex = cardIndex;
-    document.getElementById('colorModal').style.display = "block";
+
+    const modal = document.getElementById('colorModal');
+    if(modal){
+      modal.style.display = "block";
+    }
   }
   else
-  {socket.emit("playCard", { roomId : currentRoom, cardIndex });}
+  {
+    socket.emit("playCard", { roomId : currentRoom, cardIndex });
+  }
 }
 
 function pickColor(color){
@@ -57,6 +75,7 @@ function pickColor(color){
         chosenColor: color 
   });
   document.getElementById("colorModal").style.display = "none";
+  savedCardIndex = null;
 }
 
 socket.on("roomCreated", ({ roomId }) => {
@@ -101,6 +120,10 @@ socket.on("gameState", (data) => {
   if (!data) {
     console.log("data not fetched");
     return;}
+
+  myHand = data.hand;  
+  isMyTurn = data.isMyTurn;
+
   if(data.topCard){
     topCardDiv.innerText = `${data.topCard.color} ${data.topCard.value}`;
     topCardDiv.style.backgroundColor = data.topCard.color;}
@@ -109,27 +132,25 @@ socket.on("gameState", (data) => {
     topCardElement.innerText = "Waiting...";
   }  
 
-  handDiv.innerHTML = ""; // Clear old cards
-  data.hand.forEach((card, index) => {
-    const cardEl = document.createElement("div");
-    cardEl.className = "card";
-    cardEl.innerText = `${card.color} ${card.value}`;
-    cardEl.style.cssText = `
-      padding: 15px; 
-      border: 1px solid black; 
-      border-radius: 5px; 
-      background-color: ${card.color}; 
-      color: white; 
-      cursor: pointer;
-    `;
-    cardEl.onclick = () => playCard(index);
-    handDiv.appendChild(cardEl);
-  });
+  renderHand();
+
   playersBar.innerText = data.isMyTurn ? "🟢 YOUR TURN!" : `⌛ Waiting for ${data.currentTurnName}...`;
+  if (draw) draw.disabled = !isMyTurn;
+
+  if (data.pendingDrawPenalties > 0) {
+        draw.innerText = `🚨 Take Penalty (+${data.pendingDrawPenalties})`;
+        draw.style.backgroundColor = "black";
+        draw.style.color = "red";
+    } else {
+        draw.innerText = "Draw Card";
+        draw.style.backgroundColor = ""; 
+        draw .style.color = "";
+    }
 });
 
 socket.on("gameOver", (data) => {
-  alert("Game Over");
+  alert("Game Over" + data.winner.name);
+  location.reload();
 });
 
 socket.on("error", (msg) => {
@@ -142,17 +163,20 @@ function renderHand() {
 
   myHand.forEach((card, index) => {
     const btn = document.createElement("button");
+    btn.className = "card-button";
     btn.innerText = card.color + " " + card.value;
 
-    btn.onclick = () => {
-      if (card.type === 'wild') {
-        const chosenColor = prompt('Choose color (red, yellow, green, blue)');
-        if (!chosenColor) return;
-        socket.emit("playCard", { roomId: currentRoom, cardIndex: index, chosenColor });
-      } else {
-        socket.emit("playCard", { roomId: currentRoom, cardIndex: index });
-      }
-    };
+    if (card.color === 'wild') {
+      // Makes wild cards dark with white text so they are visible
+      btn.style.background = "linear-gradient(45deg, #ff5555, #5555ff, #55aa55, #ffaa00)";
+      btn.style.color = "white";
+      btn.style.textShadow = "1px 1px 2px black";
+    } else {
+      btn.style.backgroundColor = card.color;
+      btn.style.color = (card.color === 'yellow') ? 'black' : 'white';
+    }
+
+    btn.onclick = () => playCard(index);
 
     container.appendChild(btn);
   });

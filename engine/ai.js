@@ -38,10 +38,8 @@ function chooseColor(player) {
   );
 }
 
-function chooseTargetPlayer(player, targets) {
-  return targets[0];
-}
 
 
 
-module.exports = { aiChooseMove, chooseColor, chooseTargetPlayer };
+
+module.exports = { aiChooseMove, chooseColor};
