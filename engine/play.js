@@ -8,7 +8,7 @@ function isplayable(card, game){
     }
 
     // RULE 2: Wilds are ALWAYS playable (if no penalty is active)
-    if (card.type === 'wild' || card.color === 'wild') {
+    if (card.type === 'wild') {
         return true;
     }
 
@@ -40,7 +40,7 @@ function checkElimination(game, player) {
 
 
 
-function playCard(game, player, cardIndex, chosenColor = null){
+function playCard(game, player, cardIndex, chosenColor, helpers){
     const card = player.hand[cardIndex];
 
     if (!card) {
@@ -52,19 +52,25 @@ function playCard(game, player, cardIndex, chosenColor = null){
         return false; // Invalid move
     }
 
-    if (card.type === 'wild' || card.color === 'wild') {
+    if (card.type === 'wild') {
+      if(card.specialMove === "roulette"){
+
+      }
+      else{
         if (!chosenColor) return false; // Fail if client didn't send a color
         game.currentColor = chosenColor; 
+      }
     } else {
         game.currentColor = card.color;
-        game.currentValue = card.value;
     }
-
+    game.currentValue = card.value;
     player.hand.splice(cardIndex, 1);
     game.discardPile.push(card);
 
 
-    applySpecialEffect(game, player, card, nextPlayer);
+    if (card.specialMove && helpers.applySpecialEffect) {
+        helpers.applySpecialEffect(game, player, card, helpers.nextPlayer, helpers);
+    }
 
     return true;
 }

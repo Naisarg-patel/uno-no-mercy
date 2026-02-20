@@ -1,5 +1,6 @@
-const{checkWin} = require("./rules")
-function applySpecialEffect(game, player, card, nextPlayer) {
+
+function applySpecialEffect(game, player, card, nextPlayer, helpers) {
+  const { checkWin, checkElimination, applyDiscardAll, sevenRule, zeroRule } = helpers;
 
   if(!player.active){
     return;
@@ -48,8 +49,9 @@ function applySpecialEffect(game, player, card, nextPlayer) {
       break;  
 
     case "roulette":
+      const victimIndex = (game.currentPlayerIndex + game.direction + game.players.length) % game.players.length;
       game.rouletteActive = true;
-
+      game.rouletteVictimId = game.players[victimIndex].id;
       break;
 
     case "seven":
@@ -106,7 +108,9 @@ function chooseColor(player) {
   return best;
 }
 
-function RouletteDraw(game, player,color) {
+function RouletteDraw(game, player, color, helpers) {
+  game.currentColor = color;
+  const {checkElimination, reshuffle} = helpers;
 
     while (true) {
         if(game.drawPile.length === 0){
@@ -123,6 +127,11 @@ function RouletteDraw(game, player,color) {
             console.log(`Roulette success! Drew a ${card.color} ${card.value}`);
             break;
         }
+
+        if (typeof checkElimination === "function") {
+            checkElimination(game, player);
+        }
+        if (!player.active) break;
     }
 }
 

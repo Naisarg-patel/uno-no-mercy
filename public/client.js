@@ -13,6 +13,7 @@ const topCardDiv = document.getElementById("topCard");
 const startBtn = document.getElementById("startBtn");
 const playersBar = document.getElementById("playersBar");
 const draw = document.getElementById("drawBtn");
+const modal = document.getElementById('colorModal');
 
 function createRoom() {
   const name = document.getElementById("name").value;
@@ -43,7 +44,7 @@ function drawCard() {
         return;
     }
 
-    draw.disabled = true;
+    if(draw) draw.disabled = true;
     socket.emit("drawCard", { roomId: currentRoom });  
 }
 
@@ -53,27 +54,35 @@ function playCard(cardIndex) {
   }
 
   const card = myHand[cardIndex];
+  const wildcard = card.specialMove === "wild_draw4" || 
+                    card.specialMove === "wild_draw6" ||
+                    card.specialMove === "wild_draw10";
 
-  if(card.color === 'wild' || card.specialMove === "roulette" || card.type === "wild"){
+  if(wildcard){
     savedCardIndex = cardIndex;
-
-    const modal = document.getElementById('colorModal');
-    if(modal){
-      modal.style.display = "block";
-    }
+    console.log("card played", card.value);
+    document.getElementById('colorModal').style.display = "block";
+    console.log("Modal opened for card index:", cardIndex);
   }
   else
   {
-    socket.emit("playCard", { roomId : currentRoom, cardIndex });
+    socket.emit("playCard", { roomId : currentRoom, cardIndex});
   }
 }
 
 function pickColor(color){
+  if(savedCardIndex === null){
+    socket.emit("error", "saved index is null");
+  }
+
+  console.log("Color picked:", color, "for card index:", savedCardIndex);
+  
   socket.emit("playCard", { 
         roomId: currentRoom, 
         cardIndex: savedCardIndex, 
         chosenColor: color 
   });
+  
   document.getElementById("colorModal").style.display = "none";
   savedCardIndex = null;
 }
@@ -126,7 +135,12 @@ socket.on("gameState", (data) => {
 
   if(data.topCard){
     topCardDiv.innerText = `${data.topCard.color} ${data.topCard.value}`;
-    topCardDiv.style.backgroundColor = data.topCard.color;}
+    if (data.topCard.color === 'wild') {
+            topCardDiv.style.backgroundColor = data.currentColor; 
+        } else {
+            topCardDiv.style.backgroundColor = data.topCard.color;
+        }
+    }
   else{
     console.error("Top card data missing from server!");
     topCardElement.innerText = "Waiting...";
@@ -146,6 +160,23 @@ socket.on("gameState", (data) => {
         draw.style.backgroundColor = ""; 
         draw .style.color = "";
     }
+
+  if (data.hand.length >= 20) {
+    handDiv.style.border = "5px solid red";
+    playersBar.innerText = "⚠️ DANGER: CLOSE TO ELIMINATION (25 CARDS)!";
+  } else {
+      handDiv.style.border = "none";
+  }  
+
+  if (data.rouletteActive && data.rouletteVictimId === socket.id) {
+      const modal = document.getElementById('colorModal');
+      if (modal) {
+          modal.style.display = "block";
+          // Change the text so they know why the modal appeared
+          document.querySelector('#colorModal h3').innerText = "🎰 ROULETTE! Pick a color to DRAW until:";
+      }
+      // Note: pickColor(color) will now emit 'playCard' with the chosen color
+  }
 });
 
 socket.on("gameOver", (data) => {
