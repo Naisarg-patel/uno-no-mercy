@@ -63,4 +63,4 @@ async function runGame(game) {
 
 
 
-module.exports = {applySpecialEffect, creategame, createPlayer, runGame, takeTurn, checkWin, validateGameState, nextPlayer, playCard, drawCards};
+module.exports = {applySpecialEffect, creategame, createPlayer, runGame, takeTurn, checkWin, validateGameState, nextPlayer, playCard, drawCards, ShuffleDeck};

@@ -3,8 +3,8 @@ const http = require("http");
 const { Server } = require("socket.io");
 const path = require('path');
 
-const { creategame, takeTurn, checkWin, createPlayer, nextPlayer, playCard, drawCards} = require("./engine/game");
-const { drawOneCard, checkElimination, hasPlayableCard } = require("./engine/play");
+const { creategame, takeTurn, checkWin, createPlayer, nextPlayer, playCard, drawCards, ShuffleDeck} = require("./engine/game");
+const { drawOneCard, checkElimination, hasPlayableCard, eliminatePlayer } = require("./engine/play");
 const { RouletteDraw, applySpecialEffect, applyDiscardAll, zeroRule, sevenRule } = require("./engine/cardeffect");
 const { reshuffle } = require("./engine/deck");
 
@@ -168,22 +168,33 @@ io.on("connection", socket => {
 
         const game = room.game;
         const currentPlayer = game.players[game.currentPlayerIndex];
+        const helpers = { nextPlayer, checkWin, ShuffleDeck, reshuffle, eliminatePlayer };
 
         if(currentPlayer.id != socket.id){
           socket.emit("error", "It's not your turn!");
           return;
         }
+        let wasEliminated = false;
 
         if(game.pendingDrawPenalties > 0){
           const amount = game.pendingDrawPenalties;
           console.log(`${currentPlayer.name} is taking a penalty of ${amount}`);
           for(let i = 0; i < amount; i++){
             drawOneCard(game, currentPlayer);
-            checkElimination(game, currentPlayer);
+            if(checkElimination(game, currentPlayer, helpers)){
+              wasEliminated = true;
+              io.to(roomId).emit("playerEliminated", {
+                  playerId: currentPlayer.id,
+                  playerName: currentPlayer.name
+              });
+              break;
+            }
           }
 
           game.pendingDrawPenalties = 0;
-          nextPlayer(game);
+          if(!wasEliminated){
+            nextPlayer(game);
+          }
         }
         else{
           drawCards(game, currentPlayer);

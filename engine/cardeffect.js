@@ -49,7 +49,10 @@ function applySpecialEffect(game, player, card, nextPlayer, helpers) {
       break;  
 
     case "roulette":
-      const victimIndex = (game.currentPlayerIndex + game.direction + game.players.length) % game.players.length;
+      let victimIndex = (game.currentPlayerIndex + game.direction + game.players.length) % game.players.length;
+      while (!game.players[victimIndex].active) {
+        victimIndex = (victimIndex + game.direction + game.players.length) % game.players.length;
+      }
       game.rouletteActive = true;
       game.rouletteVictimId = game.players[victimIndex].id;
       break;
@@ -74,7 +77,6 @@ function applySpecialEffect(game, player, card, nextPlayer, helpers) {
 
     case "zero":
       zeroRule(game, player);
-      nextPlayer(game);
       break;  
   }
 }
@@ -126,6 +128,8 @@ function RouletteDraw(game, player, color, helpers) {
   const {checkElimination, reshuffle} = helpers;
 
     while (true) {
+       if (!player.active) return; 
+
         if(game.drawPile.length === 0){
             reshuffle(game);
             if(game.drawPile.length === 0){
@@ -136,15 +140,13 @@ function RouletteDraw(game, player, color, helpers) {
         const card = game.drawPile.pop();
         player.hand.push(card);
 
-        if (card.color === color) {
+         if (card.color === color) {
             console.log(`Roulette success! Drew a ${card.color} ${card.value}`);
             break;
         }
-
-        if (typeof checkElimination === "function") {
-            checkElimination(game, player);
-        }
-        if (!player.active) break;
+            if(helpers.checkElimination(game, player, helpers)){
+              break;
+            }       
     }
 }
 

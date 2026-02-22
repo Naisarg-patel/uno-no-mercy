@@ -153,6 +153,10 @@ socket.on("chooseSwapTarget", ( data ) => {
     swapModal.style.display = "block";
 });
 
+socket.on("playerEliminated", ({ playerId, playerName }) => {
+    alert(`💀 ${playerName} has been eliminated!`);
+});
+
 socket.on("gameState", (data) => {
   if (!data) {
     console.log("data not fetched");
@@ -160,6 +164,8 @@ socket.on("gameState", (data) => {
 
   myHand = data.hand;  
   isMyTurn = data.isMyTurn;
+
+  
 
   if(data.topCard){
     topCardDiv.innerText = `${data.topCard.color} ${data.topCard.value}`;
@@ -176,7 +182,7 @@ socket.on("gameState", (data) => {
 
   renderHand();
 
-  playersBar.innerText = data.isMyTurn ? "🟢 YOUR TURN!" : `⌛ Waiting for ${data.currentTurnName}...`;
+  playersBar.innerText = data.isMyTurn ? "🟢 YOUR TURN!" : `⌛ Waiting for ${data.playerName}...`;
   if (draw) draw.disabled = !isMyTurn;
 
   if (data.pendingDrawPenalties > 0) {
@@ -235,7 +241,21 @@ function renderHand() {
       btn.style.color = (card.color === 'yellow') ? 'black' : 'white';
     }
 
-    btn.onclick = () => playCard(index);
+    if (window.lastGameState && window.lastGameState.pendingDrawPenalties > 0) {
+        const topCard = window.lastGameState.topCard;
+        const canStack = card.drawAmount >= (topCard.drawAmount || 0);
+        
+        if (!canStack) {
+            btn.style.opacity = "0.3";
+            btn.style.filter = "grayscale(100%)";
+            btn.style.cursor = "not-allowed";
+            btn.onclick = () => console.log("Cannot stack this card!"); 
+        } else {
+            btn.onclick = () => playCard(index);
+        }
+    } else {
+        btn.onclick = () => playCard(index);
+    }
 
     container.appendChild(btn);
   });

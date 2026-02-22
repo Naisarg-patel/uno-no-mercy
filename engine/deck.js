@@ -61,13 +61,13 @@ function ShuffleDeck(deck){
 
 function reshuffle(game){
 
-    if(game.drawPile.length === 0){
+    if(game.drawPile.length > 0 || game.discardPile.length <= 1){
         return;
     }
 
     console.log("Reshuffling the discard pile into the draw pile");
     const topCard = game.discardPile.pop();
-    game.drawPile = game.discardPile;
+    game.drawPile = [...game.discardPile];
     game.discardPile = [topCard];
 
     ShuffleDeck(game.drawPile);

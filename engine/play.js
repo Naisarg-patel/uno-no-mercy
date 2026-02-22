@@ -1,10 +1,20 @@
 const { applySpecialEffect } = require("./cardeffect");
 const {decidePlayOrDraw, nextPlayer, checkWin} = require("./rules");
-const {ShuffleDeck} = require("./deck");
+const {ShuffleDeck, reshuffle} = require("./deck");
 
 function isplayable(card, game){
+  const topCard = game.discardPile[game.discardPile.length - 1];
+
     if(game.pendingDrawPenalties > 0){
-        return card.drawAmount > 0;
+      if(!card.drawAmount || card.drawAmount === 0) return false;
+
+      if(card.drawAmount >= topCard.drawAmount){
+        if(card.color !== 'wild' && card.color !== game.currentColor){
+          return card.drawAmount === topCard.drawAmount;
+        }
+        return true;
+      }
+      return false;
     }
 
     // RULE 2: Wilds are ALWAYS playable (if no penalty is active)
@@ -27,11 +37,11 @@ function hasPlayableCard(player, game) {
   return false;
 }
 
-function checkElimination(game, player) {
+function checkElimination(game, player, helpers) {
   if (!player.active) return false;
 
   if (player.hand.length >= 25) {
-    eliminatePlayer(game, player);
+    eliminatePlayer(game, player, helpers);
     checkWin(game, player);
     return true;
   }
@@ -80,6 +90,8 @@ function playCard(game, player, cardIndex, chosenColor, helpers){
 
 function drawCards(game, player) {
   while(true){
+    if (!player.active) return null;
+
     if(game.drawPile.length === 0 && game.discardPile.length > 1){
       console.log("deck is empty");
       return null;
@@ -122,24 +134,30 @@ function drawOneCard(game, player) {
 
 
 
-function eliminatePlayer(game, player) {
+function eliminatePlayer(game, player, helpers) {
   if (!player.active) return;
 
   console.log(`💀 ${player.name} eliminated (${player.hand.length} cards)`);
-  if(checkWin(game, player)) return;
+ 
 
-  // Move ALL cards to discard pile
-  game.discardPile.push(...player.hand);
-  ShuffleDeck(game.discardPile);
-
-  // Clear hand
-  player.hand = [];
-
-  // Mark inactive
+  if (player.hand.length > 0) {
+        game.drawPile.push(...player.hand);
+        player.hand = []; // Force hand to be empty
+    }
   player.active = false;
+   game.eliminatedPlayers.push(player.name);
 
-  // Track eliminated players
-  game.eliminatedPlayers.push(player.name);
+  if (helpers && typeof helpers.ShuffleDeck === "function") {
+        helpers.ShuffleDeck(game.drawPile);
+  }
+
+  if(helpers && typeof helpers.nextPlayer === "function"){
+    if (game.players[game.currentPlayerIndex]?.id === player.id) {
+        helpers.nextPlayer(game);
+    } 
+  } 
+
+  return true;
 }
 
 
