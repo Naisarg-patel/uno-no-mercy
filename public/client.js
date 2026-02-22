@@ -125,6 +125,34 @@ socket.on("yourHand", (hand) => {
   renderHand();
 });
 
+socket.on("chooseSwapTarget", ( data ) => {
+
+    if (!data || !data.targets) {
+        console.error("Swap target error: No targets received", data);
+        return;
+    }
+
+    const swapModal = document.getElementById("swapModal");
+    const list = document.getElementById("swapPlayerList");
+
+    list.innerHTML = "";
+
+    data.targets.forEach(target => {
+        const btn = document.createElement("button");
+        btn.innerText = target.name;
+        btn.onclick = () => {
+            socket.emit("swapHands", {
+                roomId: currentRoom,
+                targetId: target.id
+            });
+            swapModal.style.display = "none";
+        };
+        list.appendChild(btn);
+    });
+
+    swapModal.style.display = "block";
+});
+
 socket.on("gameState", (data) => {
   if (!data) {
     console.log("data not fetched");

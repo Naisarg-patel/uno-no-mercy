@@ -54,7 +54,7 @@ function playCard(game, player, cardIndex, chosenColor, helpers){
 
     if (card.type === 'wild') {
       if(card.specialMove === "roulette"){
-
+        
       }
       else{
         if (!chosenColor) return false; // Fail if client didn't send a color
@@ -69,9 +69,12 @@ function playCard(game, player, cardIndex, chosenColor, helpers){
 
 
     if (card.specialMove && helpers.applySpecialEffect) {
-        helpers.applySpecialEffect(game, player, card, helpers.nextPlayer, helpers);
+      
+      const result = helpers.applySpecialEffect(game, player, card, helpers.nextPlayer, helpers);
+      if (result && result.action === "chooseSwapTarget") {
+        return result; 
+      }
     }
-
     return true;
 }
 

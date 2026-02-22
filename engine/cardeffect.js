@@ -55,8 +55,21 @@ function applySpecialEffect(game, player, card, nextPlayer, helpers) {
       break;
 
     case "seven":
-      sevenRule(game, player);
-      nextPlayer(game);
+      if(player.isAI){
+        sevenRule(game, player);
+        nextPlayer(game);
+        return true;
+      }
+      else{
+        game.waitingForSeven = true;
+        game.sevenInitiatorId = player.id;
+        return {
+          action: "chooseSwapTarget",
+          targets: game.players
+            .filter(p => p.active && p.id !== player.id)
+            .map(p => ({ id: p.id, name: p.name }))
+        };
+      }
       break;  
 
     case "zero":

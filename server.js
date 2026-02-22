@@ -137,6 +137,13 @@ io.on("connection", socket => {
           return; 
       }
 
+      if (success && success.action === "chooseSwapTarget") {
+          io.to(currentPlayer.id).emit("chooseSwapTarget", {
+              targets: success.targets
+          });
+          return; // STOP TURN FLOW
+      }
+
       // 2. If play was successful, proceed
       if(checkWin(game)){
         io.to(roomId).emit("gameOver", {winner : currentPlayer});
@@ -185,6 +192,41 @@ io.on("connection", socket => {
              nextPlayer(game); // Only skip if they STILL can't play (safety)
           }
         }
+        sendGameState(roomId);
+    });
+
+    socket.on("swapHands", ({ roomId, targetId }) => {
+        const room = rooms[roomId];
+        if (!room || !room.game) return;
+
+        const game = room.game;
+
+        if (!game.waitingForSeven || game.sevenInitiatorId !== socket.id) return;
+
+        const player1 = game.players.find(p => p.id === socket.id);
+        const player2 = game.players.find(p => p.id === targetId);
+
+        if (!player1 || !player2 || !player2.active) return;
+
+        // 🔥 swap
+        const hand1 = [...player1.hand];
+        const hand2 = [...player2.hand];
+
+        player1.hand = hand2;
+        player2.hand = hand1;
+
+        game.waitingForSeven = false;
+        game.sevenInitiatorId = null;
+
+        nextPlayer(game);
+
+        let nextPerson = game.players[game.currentPlayerIndex];
+            while (nextPerson && nextPerson.isAI && !game.gameOver) {
+                takeTurn(game);
+                nextPerson = game.players[game.currentPlayerIndex];
+            }
+
+            
         sendGameState(roomId);
     });
 
