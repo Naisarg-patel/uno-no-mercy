@@ -87,6 +87,18 @@ function pickColor(color){
   savedCardIndex = null;
 }
 
+function getCardImage(card) {
+  if (!card) return "";
+
+  // Wild cards
+  if (card.color === "wild") {
+    return `cards/wild_${card.value}.png`;
+  }
+
+  // Normal cards
+  return `cards/${card.color}_${card.value}.png`;
+}
+
 socket.on("roomCreated", ({ roomId }) => {
   currentRoom = roomId;
   roomIdText.innerText = currentRoom;
@@ -158,58 +170,119 @@ socket.on("playerEliminated", ({ playerId, playerName }) => {
 });
 
 socket.on("gameState", (data) => {
-  if (!data) {
-    console.log("data not fetched");
-    return;}
+  if (!data) return;
 
-  myHand = data.hand;  
+  const gameUI = document.getElementById("game");
+  if (!gameUI || gameUI.style.display === "none") return;
+
+  myHand = data.hand || [];
   isMyTurn = data.isMyTurn;
 
-  
+  /* ------------------ DIRECTION ------------------ */
+  const direction = document.getElementById("direction-indicator");
+  if (direction) {
+    direction.classList.toggle("ccw", data.reverse);
+    direction.classList.toggle("cw", !data.reverse);
+  }
 
-  if(data.topCard){
-    topCardDiv.innerText = `${data.topCard.color} ${data.topCard.value}`;
-    if (data.topCard.color === 'wild') {
-            topCardDiv.style.backgroundColor = data.currentColor; 
-        } else {
-            topCardDiv.style.backgroundColor = data.topCard.color;
-        }
-    }
-  else{
-    console.error("Top card data missing from server!");
-    topCardElement.innerText = "Waiting...";
-  }  
+  /* ------------------ PENALTY BADGE ------------------ */
+  const bulb = document.getElementById("light-bulb");
+  const badge = document.getElementById("penalty-badge");
 
-  renderHand();
+  if (bulb) {
 
-  playersBar.innerText = data.isMyTurn ? "🟢 YOUR TURN!" : `⌛ Waiting for ${data.playerName}...`;
-  if (draw) draw.disabled = !isMyTurn;
+    const color = data.currentColor || "white";
+    bulb.classList.add("flash");
+    setTimeout(() => {
+      bulb.classList.remove("flash");
+    }, 300);
+    // 🎨 Always show current game color
+    bulb.style.background = color;
+    bulb.style.boxShadow = `0 0 30px ${color}`;
 
-  if (data.pendingDrawPenalties > 0) {
-        draw.innerText = `🚨 Take Penalty (+${data.pendingDrawPenalties})`;
-        draw.style.backgroundColor = "black";
-        draw.style.color = "red";
-    } else {
-        draw.innerText = "Draw Card";
-        draw.style.backgroundColor = ""; 
-        draw .style.color = "";
-    }
+    // 🚨 Penalty warning mode
+    if (data.pendingDrawPenalties > 0) {
+      bulb.classList.add("warning-light");
 
-  if (data.hand.length >= 20) {
-    handDiv.style.border = "5px solid red";
-    playersBar.innerText = "⚠️ DANGER: CLOSE TO ELIMINATION (25 CARDS)!";
-  } else {
-      handDiv.style.border = "none";
-  }  
-
-  if (data.rouletteActive && data.rouletteVictimId === socket.id) {
-      const modal = document.getElementById('colorModal');
-      if (modal) {
-          modal.style.display = "block";
-          // Change the text so they know why the modal appeared
-          document.querySelector('#colorModal h3').innerText = "🎰 ROULETTE! Pick a color to DRAW until:";
+      if (badge) {
+        badge.style.display = "flex";
+        badge.innerText = "+" + data.pendingDrawPenalties;
       }
-      // Note: pickColor(color) will now emit 'playCard' with the chosen color
+    } else {
+      bulb.classList.remove("warning-light");
+
+      if (badge) {
+        badge.style.display = "none";
+      }
+    }
+  }
+  /* ------------------ TOP CARD ------------------ */
+ const topCardImg = document.getElementById("top-card-img");
+
+if (topCardImg && data.topCard) {
+  topCardImg.src = getCardImage(data.topCard);
+
+  // Optional glow color
+  if (data.topCard.color === "wild") {
+    topCardImg.style.boxShadow = `0 0 20px ${data.currentColor}`;
+  } else {
+    topCardImg.style.boxShadow = `0 0 20px ${data.topCard.color}`;
+  }
+}
+
+  /* ------------------ HAND + OPPONENTS ------------------ */
+  renderHand();
+  if (data.players) renderOpponents(data.players);
+
+  window.lastGameState = data;
+
+  /* ------------------ TURN BAR ------------------ */
+  const playersBar = document.getElementById("playersBar");
+  if (playersBar) {
+    playersBar.innerText = data.isMyTurn
+      ? "🟢 YOUR TURN!"
+      : `⌛ Waiting for ${data.currentTurnName || ""}...`;
+  }
+
+  /* ------------------ DRAW BUTTON ------------------ */
+  if (draw) {
+    draw.disabled = !isMyTurn;
+
+    if (data.pendingDrawPenalties > 0) {
+      draw.innerText =
+        `🚨 Take Penalty (+${data.pendingDrawPenalties})`;
+      draw.style.backgroundColor = "black";
+      draw.style.color = "red";
+    } else {
+      draw.innerText = "Draw Card";
+      draw.style.backgroundColor = "";
+      draw.style.color = "";
+    }
+  }
+
+  /* ------------------ ELIMINATION WARNING ------------------ */
+  const handDiv = document.getElementById("hand");
+  if (handDiv && myHand.length >= 20) {
+    handDiv.style.border = "5px solid red";
+    if (playersBar) {
+      playersBar.innerText =
+        "⚠️ DANGER: CLOSE TO ELIMINATION (25 CARDS)!";
+    }
+  } else if (handDiv) {
+    handDiv.style.border = "none";
+  }
+
+  /* ------------------ ROULETTE ------------------ */
+  if (data.rouletteActive && data.rouletteVictimId === socket.id) {
+    const modal = document.getElementById("colorModal");
+    if (modal) {
+      modal.style.display = "block";
+      const h3 = modal.querySelector("h3");
+      if (h3) {
+        h3.innerText =
+          "🎰 ROULETTE! Pick a color to DRAW until:";
+      }
+    }
   }
 });
 
@@ -223,40 +296,95 @@ socket.on("error", (msg) => {
 });
 
 function renderHand() {
-  const container = handDiv;
-  container.innerHTML = "";
+  const handDiv = document.getElementById("player-hand");
+  if (!handDiv) return;
+
+  handDiv.innerHTML = "";
+
+  if (!Array.isArray(myHand) || myHand.length === 0) return;
+
+  const total = myHand.length;
+  const fanSpread = 30; // total rotation spread
+  const startAngle = -fanSpread / 2;
 
   myHand.forEach((card, index) => {
-    const btn = document.createElement("button");
-    btn.className = "card-button";
-    btn.innerText = card.color + " " + card.value;
+    const cardDiv = document.createElement("div");
+    cardDiv.className = "card";
 
-    if (card.color === 'wild') {
-      // Makes wild cards dark with white text so they are visible
-      btn.style.background = "linear-gradient(45deg, #ff5555, #5555ff, #55aa55, #ffaa00)";
-      btn.style.color = "white";
-      btn.style.textShadow = "1px 1px 2px black";
-    } else {
-      btn.style.backgroundColor = card.color;
-      btn.style.color = (card.color === 'yellow') ? 'black' : 'white';
+    // FAN ROTATION EFFECT
+    const angle =
+      total > 1
+        ? startAngle + (index / (total - 1)) * fanSpread
+        : 0;
+
+    cardDiv.style.transform = `rotate(${angle}deg)`;
+
+    const img = document.createElement("img");
+    img.className = "card-img";
+    img.src = getCardImage(card);
+
+    img.onerror = () => {
+      console.error("Missing image:", img.src);
+    };
+
+    cardDiv.appendChild(img);
+
+    if (isMyTurn) {
+      cardDiv.style.cursor = "pointer";
+      cardDiv.onclick = () => playCard(index);
     }
 
-    if (window.lastGameState && window.lastGameState.pendingDrawPenalties > 0) {
-        const topCard = window.lastGameState.topCard;
-        const canStack = card.drawAmount >= (topCard.drawAmount || 0);
-        
-        if (!canStack) {
-            btn.style.opacity = "0.3";
-            btn.style.filter = "grayscale(100%)";
-            btn.style.cursor = "not-allowed";
-            btn.onclick = () => console.log("Cannot stack this card!"); 
-        } else {
-            btn.onclick = () => playCard(index);
-        }
-    } else {
-        btn.onclick = () => playCard(index);
+    handDiv.appendChild(cardDiv);
+  });
+}
+
+function renderOpponents(players) {
+  const container = document.getElementById("opponents-container");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  const others = players.filter(p => p.id !== socket.id);
+  const total = others.length;
+  if (total === 0) return;
+
+  const radius = 320;
+  const centerX = window.innerWidth / 2;
+  const centerY = window.innerHeight / 2 - 50;
+
+  others.forEach((player, i) => {
+    // Spread only across upper half circle
+    const angle = (Math.PI / (total + 1)) * (i + 1);
+
+    const x = centerX + radius * Math.cos(angle - Math.PI) - 80;
+    const y = centerY + radius * Math.sin(angle - Math.PI) - 50;
+
+    const slot = document.createElement("div");
+    slot.className = "opponent-slot";
+    slot.style.position = "absolute";
+    slot.style.left = `${x}px`;
+    slot.style.top = `${y}px`;
+
+    const name = document.createElement("div");
+    name.innerText = player.name;
+
+    const hand = document.createElement("div");
+    hand.className = "opp-hand";
+
+    const maxCards = Math.min(player.handCount, 8);
+    const spacing = 10;
+
+    for (let j = 0; j < maxCards; j++) {
+      const img = document.createElement("img");
+      img.src = "cards/card_back.png";
+      img.className = "mini-card";
+      img.style.left = j * spacing + "px";
+      img.style.position = "absolute";
+      hand.appendChild(img);
     }
 
-    container.appendChild(btn);
+    slot.appendChild(name);
+    slot.appendChild(hand);
+    container.appendChild(slot);
   });
 }

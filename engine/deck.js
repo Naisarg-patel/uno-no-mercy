@@ -35,11 +35,11 @@ function CreateDeck(){
     }
 
     for(let i = 1; i <= 4; i++){
-        deck.push(CreateCard({type: 'wild', color: 'wild', value: 'wild_draw6', drawAmount: 6, specialMove: 'wild_draw6'}));
-        deck.push(CreateCard({type: 'wild', color: 'wild', value: 'wild_draw10', drawAmount: 10, specialMove: 'wild_draw10'}));
+        deck.push(CreateCard({type: 'wild', color: 'wild', value: 'draw6', drawAmount: 6, specialMove: 'wild_draw6'}));
+        deck.push(CreateCard({type: 'wild', color: 'wild', value: 'draw10', drawAmount: 10, specialMove: 'wild_draw10'}));
     }
     for(let i = 1; i <= 8; i++){
-        deck.push(CreateCard({type: 'wild', color: 'wild', value: 'wild_draw4', drawAmount: 4, specialMove: 'wild_draw4'}));
+        deck.push(CreateCard({type: 'wild', color: 'wild', value: 'draw4', drawAmount: 4, specialMove: 'wild_draw4'}));
         deck.push(CreateCard({type: 'wild', color: 'wild', value: 'roulette', specialMove: 'roulette'}));
     }
     

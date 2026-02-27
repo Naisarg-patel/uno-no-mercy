@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>UNO Multiplayer</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -24,36 +25,42 @@
 
 
 <div id="game" style="display:none">
+  <div id="direction-indicator" class="cw"></div>
+  
+  <div id="light-bulb">
+    <div id="penalty-badge"></div>
+  </div>
 
-  <!-- Players Info -->
-  <div id="playersBar"></div>
-
-  <!-- Center Table -->
   <div id="table">
-    <div id="discardPile">
-      <div id="topCard" class="card back">UNO</div>
+   <div id="draw-pile">
+   <img src="cards/card_back.png" class="mini-card" onclick="drawCard()" />
+</div>
+    
+    <div id="discard-pile">
+   <img id="top-card-img" />
+</div>
+  </div>
+
+  <div id="opponents-container"></div>
+
+  <div id="handContainer">
+    <div id="playersBar"></div>
+    <div id="player-hand"></div>
+  </div>
+
+  <div id="colorModal" style="display:none;">
+    <h3>Select Next Color</h3>
+    <div class="color-grid">
+        <button onclick="pickColor('red')" style="background:red;"></button>
+        <button onclick="pickColor('blue')" style="background:blue;"></button>
+        <button onclick="pickColor('green')" style="background:green;"></button>
+        <button onclick="pickColor('yellow')" style="background:yellow;"></button>
     </div>
   </div>
-
-  <div id="colorModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#333; padding:20px; border-radius:10px; text-align:center; z-index:1000;">
-    <h3 style="color:white;">Select Next Color</h3>
-    <button onclick="pickColor('red')" style="background:red; width:60px; height:60px; border:none; margin:5px;"></button>
-    <button onclick="pickColor('blue')" style="background:blue; width:60px; height:60px; border:none; margin:5px;"></button>
-    <button onclick="pickColor('green')" style="background:green; width:60px; height:60px; border:none; margin:5px;"></button>
-    <button onclick="pickColor('yellow')" style="background:yellow; width:60px; height:60px; border:none; margin:5px;"></button>
-</div>
-<div id="swapModal" style="display:none; position:fixed; top:50%; left:50%; background:white; padding:20px; border:2px solid black;">
-    <h3>Choose a player to swap hands with:</h3>
-    <div id="swapPlayerList"></div>
-</div>
-
-  <!-- Player Hand -->
-  <div id="handContainer">
-    <div id="hand"></div>
+  <div id="swapModal" style="display:none;">
+      <h3>Choose Player to Swap</h3>
+      <div id="swapPlayerList"></div>
   </div>
-
-  <button onclick="drawCard()" id="drawBtn">Draw</button>
-
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
