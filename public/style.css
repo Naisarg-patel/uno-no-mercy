@@ -309,9 +309,10 @@ body::before {
 
 /* 6. Sky Light Bulb */
 #light-bulb {
-  position: absolute;
-  top: 40%;
-  right: 18%;
+  position: relative;
+  top: 232px;
+  left: 408px;
+  z-index: 1;
   width: 60px;
   height: 60px;
   border-radius: 50%;
