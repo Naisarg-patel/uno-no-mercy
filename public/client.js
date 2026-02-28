@@ -279,17 +279,26 @@ if (topCardImg && data.topCard) {
 
   /* ------------------ HAND + OPPONENTS ------------------ */
   renderHand();
-  if (data.players) renderOpponents(data.players);
+  if (data.players) renderOpponents(data.players, data.currentTurnName);
 
   window.lastGameState = data;
 
-  /* ------------------ TURN BAR ------------------ */
-  const playersBar = document.getElementById("playersBar");
-  if (playersBar) {
-    playersBar.innerText = data.isMyTurn
-      ? "🟢 YOUR TURN!"
-      : `⌛ Waiting for ${data.currentTurnName || ""}...`;
+  const turnIndicator = document.getElementById("your-turn-indicator");
+  const handContainer = document.getElementById("handContainer");
+
+  if (turnIndicator && handContainer) {
+
+    if (data.isMyTurn) {
+      turnIndicator.style.display = "block";
+      turnIndicator.innerText = "YOUR TURN";
+      handContainer.classList.add("active-turn");
+    } else {
+      turnIndicator.style.display = "block";
+      turnIndicator.innerText = "Waiting for " + data.currentTurnName;
+      handContainer.classList.remove("active-turn");
+    }
   }
+  /* ------------------ TURN BAR ------------------ */
 
   /* ------------------ DRAW BUTTON ------------------ */
   if (draw) {
@@ -395,53 +404,116 @@ function renderHand() {
   }
 }
 
-function renderOpponents(players) {
+function renderOpponents(players, currentTurnName) {
   const container = document.getElementById("opponents-container");
-  if (!container) return;
-
   container.innerHTML = "";
 
-  const others = players.filter(p => p.id !== socket.id);
-  const total = others.length;
-  if (total === 0) return;
+  const opponents = players.filter(p => p.id !== socket.id);
+  const total = players.length;
 
-  const radius = 320;
-  const centerX = window.innerWidth / 2;
-  const centerY = window.innerHeight / 2 - 50;
+  const seatPositions = getSeatPositions(total);
 
-  others.forEach((player, i) => {
-    // Spread only across upper half circle
-    const angle = (Math.PI / (total + 1)) * (i + 1);
-
-    const x = centerX + radius * Math.cos(angle - Math.PI) - 80;
-    const y = centerY + radius * Math.sin(angle - Math.PI) - 50;
+  opponents.forEach((player, index) => {
 
     const slot = document.createElement("div");
     slot.className = "opponent-slot";
+
+    // Set position from layout
+    const pos = seatPositions[index];
     slot.style.position = "absolute";
-    slot.style.left = `${x}px`;
-    slot.style.top = `${y}px`;
+    slot.style.top = pos.top;
 
-    const name = document.createElement("div");
-    name.innerText = `${player.name} (${player.handCount})`;
+    if (pos.left) slot.style.left = pos.left;
+    if (pos.right) slot.style.right = pos.right;
+    if (pos.transform) slot.style.transform = pos.transform;
 
-    const hand = document.createElement("div");
-    hand.className = "opp-hand";
-
-    const maxCards = Math.min(player.handCount, 8);
-    const spacing = 10;
-
-    for (let j = 0; j < maxCards; j++) {
-      const img = document.createElement("img");
-      img.src = "cards/card_back.png";
-      img.className = "mini-card";
-      img.style.left = j * spacing + "px";
-      img.style.position = "absolute";
-      hand.appendChild(img);
+    if (player.name === currentTurnName) {
+      slot.style.boxShadow = "0 0 25px gold";
+      slot.style.border = "2px solid gold";
     }
 
+    const name = document.createElement("div");
+    name.className = "name";
+    name.textContent = player.name + " (" + player.handCount + ")";
+
+    const handDiv = document.createElement("div");
+    handDiv.className = "opp-hand";
+
+    createCurvedHand(handDiv, player.handCount);
+
     slot.appendChild(name);
-    slot.appendChild(hand);
+    slot.appendChild(handDiv);
     container.appendChild(slot);
   });
+}
+
+function getSeatPositions(total) {
+
+  switch (total) {
+
+    case 2:
+      return [
+        { top: "5%", left: "50%", transform: "translateX(-50%)" }
+      ];
+
+    case 3:
+      return [
+        { top: "5%", left: "50%", transform: "translateX(-50%)" },
+        { top: "40%", left: "5%" }
+      ];
+
+    case 4:
+      return [
+        { top: "5%", left: "50%", transform: "translateX(-50%)" },
+        { top: "40%", left: "5%" },
+        { top: "40%", right: "5%" }
+      ];
+
+    case 5:
+      return [
+        { top: "5%", left: "50%", transform: "translateX(-50%)" },
+        { top: "25%", left: "5%" },
+        { top: "25%", right: "5%" },
+        { top: "60%", left: "10%" }
+      ];
+
+    case 6:
+      return [
+        { top: "5%", left: "50%", transform: "translateX(-50%)" },
+        { top: "25%", left: "5%" },
+        { top: "25%", right: "5%" },
+        { top: "60%", left: "5%" },
+        { top: "60%", right: "5%" }
+      ];
+
+    default:
+      return [];
+  }
+}
+
+function createCurvedHand(container, total) {
+
+  const spread = 10;
+  const radius = 50;
+
+  for (let i = 0; i < total; i++) {
+
+    const img = document.createElement("img");
+    img.src = "cards/card_back.png";
+    img.className = "mini-card";
+
+    const angle = (i - (total - 1) / 2) * spread;
+    const rad = angle * Math.PI / 180;
+
+    const x = Math.sin(rad) * radius;
+    const y = Math.cos(rad) * 12;
+
+    img.style.position = "absolute";
+    img.style.left = "50%";
+    img.style.bottom = "0";
+    img.style.transform =
+      `translateX(-50%) translate(${x}px, ${-y}px) rotate(${angle}deg)`;
+
+    container.appendChild(img);
+  }
 }
