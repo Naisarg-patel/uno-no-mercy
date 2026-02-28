@@ -6,8 +6,10 @@
 </head>
 <body>
 
-<div id="lobby">
+<!-- ================= LOBBY ================= -->
+<div id="lobby" >
   <h2>UNO Multiplayer</h2>
+
   <input id="name" placeholder="Your Name" />
 
   <button onclick="createRoom()">Create Room</button>
@@ -24,46 +26,85 @@
 </div>
 
 
-<div id="game" style="display:none">
-  <div id="direction-indicator" class="cw"></div>
-  
+<!-- ================= GAME ================= -->
+<div id="game" style="display:none;">
+
+  <!-- Direction Arrow -->
+  <img id="direction-arrow" src="images/arrow.png" />
+
+  <!-- Light Bulb (Current Color + Penalty) -->
   <div id="light-bulb">
     <div id="penalty-badge"></div>
   </div>
 
+  <!-- Center Table -->
   <div id="table">
-   <div id="draw-pile">
-   <img src="cards/card_back.png" class="mini-card" onclick="drawCard()" />
-</div>
-    
-    <div id="discard-pile">
-   <img id="top-card-img" />
-</div>
+
+    <!-- Draw Pile -->
+    <div id="draw-pile" class="pile">
+      <img src="cards/card_back.png" onclick="drawCard()" />
+    </div>
+
+    <!-- Discard Pile -->
+    <div id="discard-pile" class="pile">
+      <img id="top-card-img" />
+    </div>
+
   </div>
 
+  <!-- Opponents -->
   <div id="opponents-container"></div>
 
+  <!-- Player Hand Area -->
   <div id="handContainer">
     <div id="playersBar"></div>
+    <div id="my-card-count"></div>
     <div id="player-hand"></div>
   </div>
 
-  <div id="colorModal" style="display:none;">
-    <h3>Select Next Color</h3>
-    <div class="color-grid">
+  <!-- ================= MODALS ================= -->
+
+  <!-- Wild Color Modal -->
+  <div id="colorModal" class="modal" style="display:none;">
+    <div class="modal-box">
+      <h3>Select Next Color</h3>
+      <div class="color-grid">
         <button onclick="pickColor('red')" style="background:red;"></button>
         <button onclick="pickColor('blue')" style="background:blue;"></button>
         <button onclick="pickColor('green')" style="background:green;"></button>
         <button onclick="pickColor('yellow')" style="background:yellow;"></button>
+      </div>
+      <button onclick="cancelWild()">Cancel</button>
     </div>
   </div>
-  <div id="swapModal" style="display:none;">
+
+  <!-- Swap Modal -->
+  <div id="swapModal" class="modal" style="display:none;">
+    <div class="modal-box">
       <h3>Choose Player to Swap</h3>
       <div id="swapPlayerList"></div>
+      <button onclick="cancelSwap()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Elimination Drop Overlay -->
+  <div id="elimination-overlay"></div>
+
+</div>
+
+
+<!-- ================= WINNER SCREEN ================= -->
+<div id="winner-screen" style="display:none;">
+  <div class="winner-box">
+    <h1 id="winner-name"></h1>
+    <button onclick="location.reload()">Play Again</button>
   </div>
 </div>
 
+
+<!-- ================= SCRIPTS ================= -->
 <script src="/socket.io/socket.io.js"></script>
 <script src="client.js"></script>
+
 </body>
 </html>

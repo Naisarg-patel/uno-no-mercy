@@ -87,6 +87,15 @@ function pickColor(color){
   savedCardIndex = null;
 }
 
+function cancelWild() {
+  savedCardIndex = null;
+  document.getElementById("colorModal").style.display = "none";
+}
+
+function cancelSwap() {
+  document.getElementById("swapModal").style.display = "none";
+}
+
 function getCardImage(card) {
   if (!card) return "";
 
@@ -165,8 +174,29 @@ socket.on("chooseSwapTarget", ( data ) => {
     swapModal.style.display = "block";
 });
 
-socket.on("playerEliminated", ({ playerId, playerName }) => {
-    alert(`💀 ${playerName} has been eliminated!`);
+socket.on("playerEliminated", ({ playerName }) => {
+  const overlay = document.getElementById("elimination-overlay");
+  if (!overlay) return;
+
+  const text = document.createElement("div");
+  text.className = "elimination-text";
+  text.innerText = `${playerName} ELIMINATED 💀`;
+
+  overlay.appendChild(text);
+
+  // Shake table when text hits
+  setTimeout(() => {
+    const table = document.getElementById("table");
+    if (table) {
+      table.classList.add("shake");
+      setTimeout(() => table.classList.remove("shake"), 400);
+    }
+  }, 700);
+
+  // Remove after 2 seconds
+  setTimeout(() => {
+    text.remove();
+  }, 2000);
 });
 
 socket.on("gameState", (data) => {
@@ -179,10 +209,27 @@ socket.on("gameState", (data) => {
   isMyTurn = data.isMyTurn;
 
   /* ------------------ DIRECTION ------------------ */
-  const direction = document.getElementById("direction-indicator");
-  if (direction) {
-    direction.classList.toggle("ccw", data.reverse);
-    direction.classList.toggle("cw", !data.reverse);
+  const arrow = document.getElementById("direction-arrow");
+
+  if (!arrow) return;
+
+  // Only change if direction actually changed
+  if (window.lastDirection !== data.reverse) {
+
+    // Change image first
+    arrow.src = data.reverse
+      ? "images/arrowreverse.png"
+      : "images/arrow.png";
+
+    // Trigger spin animation
+    arrow.classList.add("spin");
+
+    setTimeout(() => {
+      arrow.classList.remove("spin");
+    }, 400);
+
+    // Save state
+    window.lastDirection = data.reverse;
   }
 
   /* ------------------ PENALTY BADGE ------------------ */
@@ -287,8 +334,13 @@ if (topCardImg && data.topCard) {
 });
 
 socket.on("gameOver", (data) => {
-  alert("Game Over" + data.winner.name);
-  location.reload();
+  const screen = document.getElementById("winner-screen");
+  const name = document.getElementById("winner-name");
+
+  if (screen && name) {
+    name.innerText = `🏆 ${data.winner.name} WINS!`;
+    screen.style.display = "flex";
+  }
 });
 
 socket.on("error", (msg) => {
@@ -336,6 +388,11 @@ function renderHand() {
 
     handDiv.appendChild(cardDiv);
   });
+
+  const myCount = document.getElementById("my-card-count");
+  if (myCount) {
+    myCount.innerText = `Your Cards: ${myHand.length}`;
+  }
 }
 
 function renderOpponents(players) {
@@ -366,7 +423,7 @@ function renderOpponents(players) {
     slot.style.top = `${y}px`;
 
     const name = document.createElement("div");
-    name.innerText = player.name;
+    name.innerText = `${player.name} (${player.handCount})`;
 
     const hand = document.createElement("div");
     hand.className = "opp-hand";
