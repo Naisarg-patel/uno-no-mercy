@@ -48,6 +48,11 @@ body::before {
   margin-bottom: 30px;
 }
 
+#lobby h3{
+   color: gold;
+  text-shadow: 0 0 20px rgba(255,215,0,0.8);
+}
+
 #lobby input {
   width: 250px;
   padding: 12px;
@@ -86,10 +91,10 @@ body::before {
 }
 
 #players {
-  list-style: none;
   padding: 0;
   margin-top: 15px;
-  color: white;
+  color: gold;
+  text-shadow: 0 0 20px rgba(255,215,0,0.8);
 }
 #game {
   position: absolute;
