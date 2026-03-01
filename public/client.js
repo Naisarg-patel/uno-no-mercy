@@ -67,7 +67,7 @@ function playCard(cardIndex) {
     rouletteColorPick = false; // normal wild
     console.log("card played", card.value);
     const cancelBtn = document.getElementById('colorCancelBtn');
-    if (cancelBtn) cancelBtn.style.display = '';
+    if (cancelBtn) cancelBtn.style.display = 'block'; // explicitly show
     document.getElementById('colorModal').style.display = "block";
     console.log("Modal opened for card index:", cardIndex);
   }
@@ -91,6 +91,8 @@ function pickColor(color){
   });
   
   document.getElementById("colorModal").style.display = "none";
+  const cancelBtn = document.getElementById('colorCancelBtn');
+  if (cancelBtn) cancelBtn.style.display = 'none';
   savedCardIndex = null;
   modalActive = false;
   rouletteColorPick = false;
@@ -104,6 +106,8 @@ function cancelWild() {
   }
   savedCardIndex = null;
   document.getElementById("colorModal").style.display = "none";
+  const cancelBtn = document.getElementById('colorCancelBtn');
+  if (cancelBtn) cancelBtn.style.display = 'none';
   modalActive = false;
 }
 

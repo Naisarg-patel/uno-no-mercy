@@ -385,8 +385,8 @@ body::before {
   display: block;
 }
 
-#colorModal #colorCancelBtn {
-  display: none; /* start hidden, shown only for normal wilds */
+#colorCancelBtn {
+  display: none; /* hidden by default; visible only for wild4/6/10 */
 }
 
 #penalty-badge {
