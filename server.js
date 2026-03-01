@@ -241,6 +241,42 @@ io.on("connection", socket => {
     sendGameState(roomId);
   });
 
+  // if player cancels the seven-swap selection, restore the played card and continue
+  socket.on("cancelSeven", ({ roomId }) => {
+    const room = rooms[roomId];
+    if (!room || !room.game) return;
+
+    const game = room.game;
+    if (!game.waitingForSeven || game.sevenInitiatorId !== socket.id) return;
+
+    const player = game.players.find(p => p.id === socket.id);
+    if (!player) return;
+
+    // the last card in discard pile should be the seven that was played;
+    // pull it back to the player's hand
+    const last = game.discardPile.pop();
+    if (last) {
+      player.hand.push(last);
+    }
+
+    // restore colour/value from new top card (if any)
+    const newTop = game.discardPile[game.discardPile.length - 1] || null;
+    if (newTop) {
+      game.currentColor = newTop.color === "wild" ? game.currentColor : newTop.color;
+      game.currentValue = newTop.value;
+    } else {
+      // no cards left, reset
+      game.currentColor = null;
+      game.currentValue = null;
+    }
+
+    game.waitingForSeven = false;
+    game.sevenInitiatorId = null;
+
+    // do NOT advance turn; player can play again
+    sendGameState(roomId);
+  });
+
   socket.on("disconnect", () => {
     for (const roomId in rooms) {
       const room = rooms[roomId];

@@ -3,6 +3,8 @@ let currentRoom = null;
 let isMyTurn = false;
 let myHand = [];
 let savedCardIndex = null;
+let modalActive = false; // prevents card clicks when a modal is showing
+let rouletteColorPick = false; // true when color modal is for roulette (cancel disabled)
 
 const playersList = document.getElementById("players");
 const roomIdText = document.getElementById("roomId");
@@ -59,8 +61,13 @@ function playCard(cardIndex) {
                     card.specialMove === "wild_draw10";
 
   if(wildcard){
+    // show color picker but do not emit yet
     savedCardIndex = cardIndex;
+    modalActive = true;
+    rouletteColorPick = false; // normal wild
     console.log("card played", card.value);
+    const cancelBtn = document.getElementById('colorCancelBtn');
+    if (cancelBtn) cancelBtn.style.display = '';
     document.getElementById('colorModal').style.display = "block";
     console.log("Modal opened for card index:", cardIndex);
   }
@@ -85,15 +92,29 @@ function pickColor(color){
   
   document.getElementById("colorModal").style.display = "none";
   savedCardIndex = null;
+  modalActive = false;
+  rouletteColorPick = false;
 }
 
 function cancelWild() {
+  if (rouletteColorPick) {
+    // cannot cancel roulette choice – keep modal open
+    console.log("Cancel ignored during roulette");
+    return;
+  }
   savedCardIndex = null;
   document.getElementById("colorModal").style.display = "none";
+  modalActive = false;
 }
 
 function cancelSwap() {
   document.getElementById("swapModal").style.display = "none";
+  modalActive = false;
+
+  // inform server that we changed our mind so game can continue
+  if (currentRoom) {
+    socket.emit("cancelSeven", { roomId: currentRoom });
+  }
 }
 
 function getCardImage(card) {
@@ -172,6 +193,7 @@ socket.on("chooseSwapTarget", ( data ) => {
     });
 
     swapModal.style.display = "block";
+    modalActive = true;
 });
 
 socket.on("playerEliminated", ({ playerName }) => {
@@ -333,11 +355,18 @@ if (topCardImg && data.topCard) {
     const modal = document.getElementById("colorModal");
     if (modal) {
       modal.style.display = "block";
+      modalActive = true;
+      rouletteColorPick = true;
+      // hide cancel button when roulette
+      const cancelBtn = document.getElementById('colorCancelBtn');
+      if (cancelBtn) cancelBtn.style.display = 'none';
       const h3 = modal.querySelector("h3");
       if (h3) {
         h3.innerText =
           "🎰 ROULETTE! Pick a color to DRAW until:";
       }
+      // prevent clicking outside modal from closing
+      modal.onclick = (e) => e.stopPropagation();
     }
   }
 });
@@ -387,6 +416,12 @@ function renderHand() {
     const origIndex = entry.idx;
     const cardDiv = document.createElement("div");
     cardDiv.className = "card";
+
+    // disable clicking while a modal is active
+    if (isMyTurn && !modalActive) {
+      cardDiv.style.cursor = "pointer";
+      cardDiv.onclick = () => playCard(origIndex);
+    }
 
     // FAN ROTATION EFFECT
     const angle =

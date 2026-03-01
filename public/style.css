@@ -385,6 +385,10 @@ body::before {
   display: block;
 }
 
+#colorModal #colorCancelBtn {
+  display: none; /* start hidden, shown only for normal wilds */
+}
+
 #penalty-badge {
   position: absolute;
   top: -10px;
@@ -429,8 +433,8 @@ body::before {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 420px;
-  height: 420px;
+  width: 782px;
+  height: 1182px;
   transform: translate(-50%, -50%) rotateX(65deg);
   opacity: 0.15;
   pointer-events: none;

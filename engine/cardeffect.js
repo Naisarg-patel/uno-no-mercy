@@ -107,13 +107,10 @@ function applyDiscardAll(game, player) {
       game.discardPile.push(...discarded);
     }
     game.discardPile.push(trigger);
-    console.log("discard_all effect – top card after insertion:",
-      game.discardPile[game.discardPile.length - 1]);
   } else if (discarded.length > 0) {
     // unlikely: no card yet in discard pile, just push them
     game.discardPile.push(...discarded);
-    console.log("discard_all effect – no prior card, new top:",
-      game.discardPile[game.discardPile.length - 1]);
+    
   }
 }
 
