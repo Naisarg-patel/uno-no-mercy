@@ -4,7 +4,7 @@ const { Server } = require("socket.io");
 const path = require('path');
 
 const { creategame, takeTurn, checkWin, createPlayer, nextPlayer, playCard, drawCards, ShuffleDeck } = require("./engine/game");
-const { drawOneCard, checkElimination, hasPlayableCard, eliminatePlayer } = require("./engine/play");
+const { drawOneCard, checkElimination: rawCheckElimination, hasPlayableCard, eliminatePlayer } = require("./engine/play");
 const { RouletteDraw, applySpecialEffect, applyDiscardAll, zeroRule, sevenRule } = require("./engine/cardeffect");
 const { reshuffle } = require("./engine/deck");
 
@@ -101,6 +101,15 @@ io.on("connection", socket => {
 
     const game = room.game;
 
+    // wrap elimination so we can broadcast whenever it occurs
+    const checkElimination = (g, p, h) => {
+      const eliminated = rawCheckElimination(g, p, h);
+      if (eliminated) {
+        io.to(roomId).emit("playerEliminated", { playerId: p.id, playerName: p.name });
+      }
+      return eliminated;
+    };
+
     const helpers = { nextPlayer, checkWin, checkElimination, RouletteDraw, reshuffle, applySpecialEffect, applyDiscardAll, zeroRule, sevenRule };
 
     // Not your turn
@@ -168,7 +177,17 @@ io.on("connection", socket => {
 
     const game = room.game;
     const currentPlayer = game.players[game.currentPlayerIndex];
-    const helpers = { nextPlayer, checkWin, ShuffleDeck, reshuffle, eliminatePlayer };
+    
+    // wrapper to broadcast elimination whenever it happens
+    const checkElimination = (g, p, h) => {
+      const eliminated = rawCheckElimination(g, p, h);
+      if (eliminated) {
+        io.to(roomId).emit("playerEliminated", { playerId: p.id, playerName: p.name });
+      }
+      return eliminated;
+    };
+
+    const helpers = { nextPlayer, checkWin, checkElimination, ShuffleDeck, reshuffle, eliminatePlayer };
 
     if (currentPlayer.id != socket.id) {
       socket.emit("error", "It's not your turn!");
@@ -183,10 +202,6 @@ io.on("connection", socket => {
         drawOneCard(game, currentPlayer);
         if (checkElimination(game, currentPlayer, helpers)) {
           wasEliminated = true;
-          io.to(roomId).emit("playerEliminated", {
-            playerId: currentPlayer.id,
-            playerName: currentPlayer.name
-          });
           break;
         }
       }

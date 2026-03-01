@@ -210,16 +210,14 @@ socket.on("playerEliminated", ({ playerName }) => {
 
   overlay.appendChild(text);
 
-  // Shake table when text hits
-  setTimeout(() => {
-    const table = document.getElementById("table");
-    if (table) {
-      table.classList.add("shake");
-      setTimeout(() => table.classList.remove("shake"), 400);
-    }
-  }, 700);
+  // also show a brief toast message at top
+  const toast = document.createElement("div");
+  toast.className = "toast-msg";
+  toast.innerText = `${playerName} ELIMINATED`;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2000);
 
-  // Remove after 2 seconds
+  // Remove overlay text after 2 seconds
   setTimeout(() => {
     text.remove();
   }, 2000);

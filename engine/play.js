@@ -6,14 +6,41 @@ function isplayable(card, game){
   const topCard = game.discardPile[game.discardPile.length - 1];
 
     if(game.pendingDrawPenalties > 0){
+      // must be a draw card and meet or exceed penalty amount
       if(!card.drawAmount || card.drawAmount === 0) return false;
+      if(card.drawAmount < topCard.drawAmount) return false;
 
-      if(card.drawAmount >= topCard.drawAmount){
-        if(card.color !== 'wild' && card.color !== game.currentColor){
+      // wilds always allowed
+      if(card.color === 'wild') return true;
+
+      // if top card was a coloured draw2/draw4 (not a wild) we have
+      // slightly stricter stacking. for a draw2 you can follow with any
+      // draw2 or with a same-colour draw4; for a coloured draw4 you may only
+      // continue with another draw4 (any colour).
+      if(topCard.color !== 'wild' && (topCard.specialMove === 'draw2' || topCard.specialMove === 'draw4')){
+        if(topCard.specialMove === 'draw2'){
+          if(card.drawAmount > topCard.drawAmount) {
+            // upgrading red draw2 -> red draw4 only
+            return card.color === topCard.color;
+          }
+          // any draw2 colour is okay
+          return true;
+        } else {
+          // top card is coloured draw4: only draw4 allowed (any colour)
           return card.drawAmount === topCard.drawAmount;
         }
-        return true;
       }
+
+      // if the penalty started with a wild_draw4, only a draw4 of the chosen
+      // colour (or another wild) can be played; draw2s are not allowed
+      if(topCard.specialMove === 'wild_draw4'){
+        if(card.drawAmount !== topCard.drawAmount) return false; // must be 4
+        if(card.color === 'wild') return true;
+        return card.color === game.currentColor;
+      }
+
+      // fallback to colour match with current game color
+      if(card.color === game.currentColor) return true;
       return false;
     }
 

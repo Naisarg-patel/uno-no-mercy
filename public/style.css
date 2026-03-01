@@ -531,3 +531,25 @@ body::before {
   font-size: 40px;
   color: gold;
 }
+
+/* toast message for temporary announcements */
+.toast-msg {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.7);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 18px;
+  z-index: 10000;
+  animation: fadeToast 2s ease forwards;
+}
+
+@keyframes fadeToast {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
+}
