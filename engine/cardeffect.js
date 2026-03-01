@@ -97,7 +97,24 @@ function applyDiscardAll(game, player) {
   }
 
   player.hand = remaining;
-  game.discardPile.push(...discarded);
+
+  // To ensure the card that triggered the discard_all stays on top,
+  // we'll temporarily remove it from the discard pile, add the other
+  // discarded cards, and then put the trigger card back.
+  if (game.discardPile.length > 0) {
+    const trigger = game.discardPile.pop();
+    if (discarded.length > 0) {
+      game.discardPile.push(...discarded);
+    }
+    game.discardPile.push(trigger);
+    console.log("discard_all effect – top card after insertion:",
+      game.discardPile[game.discardPile.length - 1]);
+  } else if (discarded.length > 0) {
+    // unlikely: no card yet in discard pile, just push them
+    game.discardPile.push(...discarded);
+    console.log("discard_all effect – no prior card, new top:",
+      game.discardPile[game.discardPile.length - 1]);
+  }
 }
 
 function chooseColor(player) {

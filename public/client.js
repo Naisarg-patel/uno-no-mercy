@@ -364,11 +364,27 @@ function renderHand() {
 
   if (!Array.isArray(myHand) || myHand.length === 0) return;
 
-  const total = myHand.length;
+  // create a sorted copy of the hand with original indices
+  const sortedHand = myHand
+    .map((card, idx) => ({ card, idx }))
+    .sort((a, b) => {
+      // reuse sort helper logic for card objects
+      const order = ["red", "yellow", "green", "blue", "wild"];
+      const ca = order.indexOf(a.card.color);
+      const cb = order.indexOf(b.card.color);
+      if (ca !== cb) return ca - cb;
+      const va = a.card.value != null ? a.card.value.toString() : "";
+      const vb = b.card.value != null ? b.card.value.toString() : "";
+      return va.localeCompare(vb, undefined, { numeric: true });
+    });
+
+  const total = sortedHand.length;
   const fanSpread = 30; // total rotation spread
   const startAngle = -fanSpread / 2;
 
-  myHand.forEach((card, index) => {
+  sortedHand.forEach((entry, index) => {
+    const card = entry.card;
+    const origIndex = entry.idx;
     const cardDiv = document.createElement("div");
     cardDiv.className = "card";
 
@@ -392,7 +408,7 @@ function renderHand() {
 
     if (isMyTurn) {
       cardDiv.style.cursor = "pointer";
-      cardDiv.onclick = () => playCard(index);
+      cardDiv.onclick = () => playCard(origIndex);
     }
 
     handDiv.appendChild(cardDiv);
