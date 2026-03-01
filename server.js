@@ -280,12 +280,47 @@ io.on("connection", socket => {
   socket.on("disconnect", () => {
     for (const roomId in rooms) {
       const room = rooms[roomId];
-      room.players = room.players.filter(p => p.id !== socket.id);
+      const playerIndex = room.players.findIndex(p => p.id === socket.id);
+      if (playerIndex === -1) continue;
 
+      // if game has started, recover cards and adjust turn
+      if (room.started && room.game) {
+        const game = room.game;
+        const player = room.players[playerIndex];
+
+        // dump their hand into draw pile
+        if (player.hand && player.hand.length > 0) {
+          game.drawPile.push(...player.hand);
+          player.hand = [];
+        }
+
+        // remove from players list
+        room.players.splice(playerIndex, 1);
+
+        // adjust currentPlayerIndex
+        if (playerIndex < game.currentPlayerIndex) {
+          game.currentPlayerIndex -= 1;
+        } else if (playerIndex === game.currentPlayerIndex) {
+          // leave index as is; after removal this now points to the next player
+          if (game.currentPlayerIndex >= room.players.length) {
+            game.currentPlayerIndex = 0;
+          }
+        }
+
+        // emit a notice for UI
+        io.to(roomId).emit("playerDisconnected", { playerId: socket.id, playerName: player.name });
+
+        // send updated game state so everyone sees new turn/hand counts
+        sendGameState(roomId);
+      } else {
+        // not in a game yet, just remove
+        room.players = room.players.filter(p => p.id !== socket.id);
+        io.to(roomId).emit("roomUpdate", room);
+      }
+
+      // clean up empty rooms
       if (room.players.length === 0) {
         delete rooms[roomId];
-      } else {
-        io.to(roomId).emit("roomUpdate", room);
       }
     }
   });

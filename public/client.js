@@ -225,6 +225,21 @@ socket.on("playerEliminated", ({ playerName }) => {
   }, 2000);
 });
 
+// new handler for disconnects
+socket.on("playerDisconnected", ({ playerId, playerName }) => {
+  const overlay = document.getElementById("elimination-overlay");
+  if (!overlay) return;
+
+  const text = document.createElement("div");
+  text.className = "elimination-text";
+  text.innerText = `${playerName} DISCONNECTED ❌`;
+  overlay.appendChild(text);
+
+  setTimeout(() => {
+    text.remove();
+  }, 2000);
+});
+
 socket.on("gameState", (data) => {
   if (!data) return;
 

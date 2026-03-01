@@ -254,9 +254,10 @@ body::before {
 }
 
 .card:hover {
-  transform: translateY(-35px) scale(1.15) rotateX(10deg);
+  /* slide slightly upwards and scale up for emphasis */
+  transform: translateY(-45px) scale(1.25) rotateX(10deg);
   z-index: 2000;
-  box-shadow: 0 25px 35px rgba(0,0,0,0.6);
+  box-shadow: 0 30px 40px rgba(0,0,0,0.6);
 }
 
 .card-button {
