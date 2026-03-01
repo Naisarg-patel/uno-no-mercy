@@ -212,9 +212,15 @@ io.on("connection", socket => {
       }
     }
     else {
-      drawCards(game, currentPlayer);
+      // draw until playable or eliminated (helpers will broadcast elimination)
+      drawCards(game, currentPlayer, helpers);
 
-      if (!hasPlayableCard(currentPlayer, game)) {
+      // if drawCards caused elimination the player becomes inactive
+      if (!currentPlayer.active) {
+        wasEliminated = true;
+      }
+
+      if (!wasEliminated && !hasPlayableCard(currentPlayer, game)) {
         nextPlayer(game); // Only skip if they STILL can't play (safety)
       }
     }
@@ -290,6 +296,23 @@ io.on("connection", socket => {
 
     // do NOT advance turn; player can play again
     sendGameState(roomId);
+  });
+
+  socket.on("playAgain", ({ roomId }) => {
+    const room = rooms[roomId];
+    if (!room) return;
+
+    // reset the state so we are back in the lobby but retain the player list
+    room.started = false;
+    room.game = null;
+    room.players.forEach(p => {
+      p.hand = [];
+      p.active = true;
+    });
+
+    io.to(roomId).emit("backToLobby");
+    // include rematch flag so clients can display proper message
+    io.to(roomId).emit("roomUpdate", { ...room, rematch: true });
   });
 
   socket.on("disconnect", () => {

@@ -122,6 +122,57 @@ body::before {
   height: 100%;
 }
 
+/* winner screen theming */
+#winner-screen {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+}
+
+.winner-box {
+  text-align: center;
+  background: rgba(255,255,255,0.1);
+  padding: 40px 60px;
+  border-radius: 20px;
+  box-shadow: 0 0 30px rgba(255,215,0,0.7), 0 0 60px rgba(0,0,0,0.9);
+}
+
+.winner-box h1 {
+  font-size: 48px;
+  color: gold;
+  margin-bottom: 30px;
+  text-shadow: 0 0 20px rgba(255,215,0,0.8);
+}
+
+.winner-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.winner-buttons button {
+  padding: 12px 24px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: linear-gradient(145deg, #cfa000, #ffd700);
+  color: black;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+  transition: all 0.2s ease;
+}
+
+.winner-buttons button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.8);
+}
+
 #game::before {
   content: "";
   position: absolute;
@@ -578,7 +629,7 @@ body::before {
 }
 
 .winner-box {
-  background: white;
+  background: radial-gradient(circle at center, #1e3c2f 0%, #0f1f18 70%);
   padding: 40px;
   border-radius: 15px;
   text-align: center;

@@ -144,7 +144,7 @@ socket.on("joinedRoom", ({ roomId }) => {
   roomIdText.innerText = currentRoom;
 });
 
-socket.on("roomUpdate", ({ players, hostId }) => {
+socket.on("roomUpdate", ({ players, hostId, rematch }) => {
   playersList.innerHTML = "";
   players.forEach(p => {
     const li = document.createElement("li");
@@ -157,6 +157,20 @@ socket.on("roomUpdate", ({ players, hostId }) => {
     startBtn.disabled = false;
   } else {
     startBtn.disabled = true;
+  }
+
+  // when we're sitting in the lobby (game UI hidden), show a contextual message
+  // computedStyle ensures we catch the default from CSS as well as inline styles
+  const lobbyVisible = window.getComputedStyle(lobby).display !== "none";
+  if (lobbyVisible) {
+    if (rematch) {
+      playersBar.innerText = "Game over – waiting for host to start new round";
+    } else if (socket.id === hostId) {
+      playersBar.innerText = "You are the host – press start to play again";
+    } else {
+      playersBar.innerText = "Waiting for host to start game...";
+    }
+    playersBar.style.display = "flex";
   }
 });
 
@@ -392,11 +406,44 @@ socket.on("gameOver", (data) => {
   const screen = document.getElementById("winner-screen");
   const name = document.getElementById("winner-name");
 
-  if (screen && name) {
-    name.innerText = `🏆 ${data.winner.name} WINS!`;
-    screen.style.display = "flex";
+  if (!screen) {
+    console.error("gameOver: winner-screen element not found");
+    return;
   }
+  if (!name) {
+    console.error("gameOver: winner-name element not found");
+    // still show the overlay so players know game ended
+    screen.style.display = "flex";
+    return;
+  }
+
+  name.innerText = `🏆 ${data?.winner?.name || 'Unknown'} WINS!`;
+  screen.style.display = "flex";
 });
+
+// new event sent by server when we should return to lobby state for a rematch
+socket.on("backToLobby", () => {
+  lobby.style.display = "flex";
+  gameUI.style.display = "none";
+  const screen = document.getElementById("winner-screen");
+  if (screen) screen.style.display = "none";
+
+  playersBar.innerText = "Game over – waiting for host to start new round";
+  playersBar.style.display = "flex";
+});
+
+// UI helpers for the buttons on the winner screen
+function rematch() {
+  if (!currentRoom) return;
+  socket.emit("playAgain", { roomId: currentRoom });
+}
+
+function exitGameHandler() {
+  // gracefully disconnect, then reload so the lobby is cleared
+  socket.disconnect();
+  location.reload();
+}
+
 
 socket.on("error", (msg) => {
   console.log(msg);

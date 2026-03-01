@@ -22,7 +22,7 @@
   <h3>Players</h3>
   <ul id="players"></ul>
 
-  <button onclick="startGame()">Start Game</button>
+  <button id="startBtn" onclick="startGame()">Start Game</button>
 </div>
 
 
@@ -97,7 +97,10 @@
 <div id="winner-screen" style="display:none;">
   <div class="winner-box">
     <h1 id="winner-name"></h1>
-    <button onclick="location.reload()">Play Again</button>
+    <div class="winner-buttons">
+      <button id="rematchBtn" onclick="rematch()">Play Again</button>
+      <button id="exitBtn" onclick="exitGameHandler()">Exit</button>
+    </div>
   </div>
 </div>
 

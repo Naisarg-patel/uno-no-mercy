@@ -115,7 +115,7 @@ function playCard(game, player, cardIndex, chosenColor, helpers){
     return true;
 }
 
-function drawCards(game, player) {
+function drawCards(game, player, helpers) {
   while(true){
     if (!player.active) return null;
 
@@ -132,8 +132,13 @@ function drawCards(game, player) {
     player.hand.push(card);
 
     if(player.hand.length >= 25){
-      eliminatePlayer(game, player);
-      checkWin(game, player);
+      // use provided helper so elimination is broadcast if available
+      if (helpers && typeof helpers.checkElimination === "function") {
+        helpers.checkElimination(game, player, helpers);
+      } else {
+        eliminatePlayer(game, player);
+        checkWin(game, player);
+      }
       return null;
     }
 
