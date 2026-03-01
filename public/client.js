@@ -472,32 +472,88 @@ function renderHand() {
   }
 }
 
+function rotatePlayers(players) {
+  const myIndex = players.findIndex(p => p.id === socket.id);
+  const total = players.length;
+
+  const rotated = [];
+
+  for (let i = 0; i < total; i++) {
+    rotated.push(players[(myIndex + i) % total]);
+  }
+
+  return rotated;
+}
+
+function getSeatMap(total) {
+  const map = {
+    2: [
+      { bottom: "20px", left: "50%", transform: "translateX(-50%)" }, // YOU
+      { top: "8%", left: "50%", transform: "translateX(-50%)" }
+    ],
+
+    3: [
+      {}, // YOU
+      { bottom: "25%", left: "8%" },        // bottom left
+      { top: "8%", left: "50%", transform: "translateX(-50%)" }
+    ],
+
+    4: [
+      {}, // YOU
+      { bottom: "25%", left: "8%" },        // bottom left
+      { top: "8%", left: "8%" },            // top left
+      { top: "8%", right: "8%" }            // top right
+    ],
+
+    5: [
+      {}, // YOU
+      { bottom: "25%", left: "8%" },
+      { top: "8%", left: "8%" },
+      { top: "8%", left: "50%", transform: "translateX(-50%)" },
+      { top: "8%", right: "8%" }
+    ],
+
+    6: [
+      {}, // YOU
+      { bottom: "25%", left: "8%" },       // relative 1
+      { top: "8%", left: "8%" },           // relative 2
+      { top: "8%", left: "50%", transform: "translateX(-50%)" }, // relative 3
+      { top: "8%", right: "8%" },          // relative 4
+      { bottom: "25%", right: "8%" }       // relative 5
+    ]
+  };
+
+  return map[total] || [];
+}
+
 function renderOpponents(players, currentTurnName) {
+
   const container = document.getElementById("opponents-container");
   container.innerHTML = "";
 
-  const opponents = players.filter(p => p.id !== socket.id);
-  const total = players.length;
+  const rotated = rotatePlayers(players);
+  const total = rotated.length;
 
-  const seatPositions = getSeatPositions(total);
+  const seats = getSeatMap(total);
 
-  opponents.forEach((player, index) => {
+  rotated.forEach((player, index) => {
+
+    if (index === 0) return; // skip YOU
 
     const slot = document.createElement("div");
     slot.className = "opponent-slot";
-
-    // Set position from layout
-    const pos = seatPositions[index];
     slot.style.position = "absolute";
-    slot.style.top = pos.top;
 
+    const pos = seats[index];
+
+    if (pos.top) slot.style.top = pos.top;
+    if (pos.bottom) slot.style.bottom = pos.bottom;
     if (pos.left) slot.style.left = pos.left;
     if (pos.right) slot.style.right = pos.right;
     if (pos.transform) slot.style.transform = pos.transform;
 
     if (player.name === currentTurnName) {
       slot.style.boxShadow = "0 0 25px gold";
-      slot.style.border = "2px solid gold";
     }
 
     const name = document.createElement("div");
@@ -515,52 +571,7 @@ function renderOpponents(players, currentTurnName) {
   });
 }
 
-function getSeatPositions(total) {
-
-  switch (total) {
-
-    case 2:
-      return [
-        { top: "5%", left: "50%", transform: "translateX(-50%)" }
-      ];
-
-    case 3:
-      return [
-        { top: "5%", left: "50%", transform: "translateX(-50%)" },
-        { top: "40%", left: "5%" }
-      ];
-
-    case 4:
-      return [
-        { top: "5%", left: "50%", transform: "translateX(-50%)" },
-        { top: "40%", left: "5%" },
-        { top: "40%", right: "5%" }
-      ];
-
-    case 5:
-      return [
-        { top: "5%", left: "50%", transform: "translateX(-50%)" },
-        { top: "25%", left: "5%" },
-        { top: "25%", right: "5%" },
-        { top: "60%", left: "10%" }
-      ];
-
-    case 6:
-      return [
-        { top: "5%", left: "50%", transform: "translateX(-50%)" },
-        { top: "25%", left: "5%" },
-        { top: "25%", right: "5%" },
-        { top: "60%", left: "5%" },
-        { top: "60%", right: "5%" }
-      ];
-
-    default:
-      return [];
-  }
-}
-
 function createCurvedHand(container, total) {
-
   const spread = 10;
   const radius = 50;
 
