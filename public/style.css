@@ -3,7 +3,6 @@ html, body {
   margin: 0;
 }
 
-
 body {
   margin: 0;
   overflow: hidden;
@@ -28,6 +27,7 @@ body::before {
   0% { transform: translate(-48%, -50%) scale(1); }
   100% { transform: translate(-52%, -50%) scale(1.2); }
 }
+
 #lobby {
   position: fixed;
   top: 0;
@@ -51,8 +51,8 @@ body::before {
   margin-bottom: 30px;
 }
 
-#lobby h3{
-   color: gold;
+#lobby h3 {
+  color: gold;
   text-shadow: 0 0 20px rgba(255,215,0,0.8);
 }
 
@@ -64,7 +64,6 @@ body::before {
   border: none;
   outline: none;
   font-size: 16px;
-
   background: rgba(255,255,255,0.1);
   color: white;
   backdrop-filter: blur(6px);
@@ -80,10 +79,8 @@ body::before {
   cursor: pointer;
   font-size: 16px;
   font-weight: bold;
-
   background: linear-gradient(145deg, #cfa000, #ffd700);
   color: black;
-
   box-shadow: 0 8px 20px rgba(0,0,0,0.6);
   transition: all 0.2s ease;
 }
@@ -107,15 +104,12 @@ body::before {
   transform: translateX(-50%);
   padding: 8px 25px;
   border-radius: 20px;
-
   background: rgba(0,0,0,0.8);
   backdrop-filter: blur(10px);
-
   color: gold;
   font-weight: bold;
   letter-spacing: 2px;
   display: none;
-
   box-shadow: 0 0 25px rgba(255,215,0,0.4);
 }
 
@@ -125,7 +119,6 @@ body::before {
   height: 100%;
 }
 
-/* winner screen theming */
 #winner-screen {
   position: absolute;
   inset: 0;
@@ -188,7 +181,6 @@ body::before {
   pointer-events: none;
 }
 
-/* 1. Opponent "White Rectangles" */
 #opponents-container {
   position: absolute;
   width: 100%;
@@ -202,15 +194,12 @@ body::before {
   height: 95px;
   padding: 8px;
   border-radius: 14px;
-
   background: rgba(255,255,255,0.08);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255,255,255,0.2);
-
   box-shadow:
     0 15px 25px rgba(0,0,0,0.5),
     inset 0 0 10px rgba(255,255,255,0.1);
-
   color: white;
   text-align: center;
 }
@@ -234,7 +223,7 @@ body::before {
   height: 80px;
   margin: 0 auto;
 }
-/* 2 & 3. Table Rectangles */
+
 #table {
   position: absolute;
   top: 50%;
@@ -251,18 +240,19 @@ body::before {
 }
 
 .blue-rect {
-  background: blue;
+  background: linear-gradient(135deg, #111, #333);
+  color: white;
   padding: 10px;
   border-radius: 5px;
 }
 
 .pink-rect {
-  background: #ff00ff;
+  background: white;
+  color: black;
   padding: 10px;
   border-radius: 5px;
 }
 
-/* 1. Curved Hand Holding (Red Circle Area) */
 #handContainer {
   position: fixed;
   bottom: 0;
@@ -270,12 +260,9 @@ body::before {
   transform: translateX(-50%);
   width: 700px;
   height: 180px;
-
   border-radius: 80% 80% 0 0;
-
   background: rgba(0,0,0,0.85);
   backdrop-filter: blur(15px);
-
   box-shadow:
     0 -25px 60px rgba(0,0,0,0.9),
     inset 0 15px 30px rgba(255,255,255,0.05);
@@ -302,13 +289,10 @@ body::before {
   margin-left: -55px;
   position: relative;
   transform-style: preserve-3d;
-  transition: 
-    transform 0.25s ease,
-    box-shadow 0.25s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .card:hover {
-  /* slide slightly upwards and scale up for emphasis */
   transform: translateY(-45px) scale(1.25) rotateX(10deg);
   z-index: 2000;
   box-shadow: 0 30px 40px rgba(0,0,0,0.6);
@@ -325,7 +309,6 @@ body::before {
   transition: all 0.2s ease;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
 }
-
 
 .dark-green {
   position: absolute;
@@ -357,16 +340,12 @@ body::before {
 }
 
 @keyframes pulse {
-  50% {
-    box-shadow: 0 0 40px red;
-  }
+  50% { box-shadow: 0 0 40px red; }
 }
 
-/* 6. Sky Light Bulb */
 #light-bulb {
   display: block;
   position: absolute;
-  /* center over the table area */
   top: 50%;
   left: 50%;
   transform: translate(-60%, -220%);
@@ -379,28 +358,14 @@ body::before {
 }
 
 @keyframes colorFlash {
-  /* preserve centering translate while scaling */
-  0% { transform: translate(-60%, -220%) scale(1); }
-  50% { transform: translate(-60%, -220%) scale(1.3); }
+  0%   { transform: translate(-60%, -220%) scale(1); }
+  50%  { transform: translate(-60%, -220%) scale(1.3); }
   100% { transform: translate(-60%, -220%) scale(1); }
 }
 
 .flash {
   animation: colorFlash 0.3s ease;
 }
-
-/* alternate blink-only effect (uncomment if preferred)
-@keyframes blink {
-  0%,100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-.flash {
-  animation: blink 0.3s ease;
-}
-*/
-
-
 
 .pile {
   width: 100px;
@@ -417,21 +382,13 @@ body::before {
   transform: translateY(-8px) scale(1.05);
 }
 
-.blue-rect {
-  background: linear-gradient(135deg, #111, #333);
-  color: white;
-}
-
-.pink-rect {
-  background: white;
-  color: black;
-}
 .card-img {
   width: 100%;
   height: 100%;
   object-fit: contain;
   display: block;
 }
+
 #draw-pile img,
 #discard-pile img {
   width: 90px;
@@ -441,7 +398,7 @@ body::before {
 }
 
 #colorCancelBtn {
-  display: none; /* hidden by default; visible only for wild4/6/10 */
+  display: none;
 }
 
 #penalty-badge {
@@ -463,7 +420,7 @@ body::before {
 #my-card-count {
   position: relative;
   bottom: 155px;
-  right:6px;
+  right: 6px;
   color: gold;
   text-shadow: 0 0 20px rgba(255,215,0,0.8);
   font-weight: bold;
@@ -475,7 +432,7 @@ body::before {
 #your-turn-indicator {
   position: relative;
   bottom: 53px;
-  right:-9px;
+  right: -9px;
   color: gold;
   text-shadow: 0 0 20px rgba(255,215,0,0.8);
   font-weight: bold;
@@ -502,13 +459,10 @@ body::before {
 }
 
 @keyframes rotateArrow3D {
-  from {
-    transform: translate(-50%, -50%) rotateX(65deg) rotateZ(0deg);
-  }
-  to {
-    transform: translate(-50%, -50%) rotateX(65deg) rotateZ(360deg);
-  }
+  from { transform: translate(-50%, -50%) rotateX(65deg) rotateZ(0deg); }
+  to   { transform: translate(-50%, -50%) rotateX(65deg) rotateZ(360deg); }
 }
+
 #elimination-overlay {
   position: fixed;
   top: 0;
@@ -518,18 +472,17 @@ body::before {
   pointer-events: none;
 }
 
-/* modal styling */
 .modal {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100vh; /* full viewport height */
+  height: 100vh;
   background: rgba(0,0,0,0.75);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2000; /* ensure above table and any cards */
+  z-index: 2000;
 }
 
 .modal-box {
@@ -543,7 +496,7 @@ body::before {
   max-width: 80%;
   max-height: 80%;
   overflow: auto;
-  margin: auto; /* ensure centering fallback */
+  margin: auto;
 }
 
 .modal-box h3 {
@@ -594,15 +547,9 @@ body::before {
 }
 
 @keyframes dropDown {
-  0% {
-    top: -150px;
-  }
-  70% {
-    top: 45%;
-  }
-  100% {
-    top: 42%;
-  }
+  0%   { top: -150px; }
+  70%  { top: 45%; }
+  100% { top: 42%; }
 }
 
 .shake {
@@ -610,11 +557,11 @@ body::before {
 }
 
 @keyframes shakeTable {
-  0% { transform: translate(0, 0); }
-  20% { transform: translate(-10px, 5px); }
-  40% { transform: translate(10px, -5px); }
-  60% { transform: translate(-8px, 3px); }
-  80% { transform: translate(8px, -3px); }
+  0%   { transform: translate(0, 0); }
+  20%  { transform: translate(-10px, 5px); }
+  40%  { transform: translate(10px, -5px); }
+  60%  { transform: translate(-8px, 3px); }
+  80%  { transform: translate(8px, -3px); }
   100% { transform: translate(0, 0); }
 }
 
@@ -640,8 +587,8 @@ body::before {
 }
 
 @keyframes winnerPop {
-  0% { transform: scale(0.5); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
+  0%   { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1);   opacity: 1; }
 }
 
 .winner-box h1 {
@@ -649,7 +596,6 @@ body::before {
   color: gold;
 }
 
-/* toast message for temporary announcements */
 .toast-msg {
   position: fixed;
   top: 20px;
@@ -665,264 +611,312 @@ body::before {
 }
 
 @keyframes fadeToast {
-  0% { opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
+  0%   { opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
   100% { opacity: 0; }
 }
 
-@media(max-width: 950px) and (min-width: 769px) {
-#lobby {
-padding: 20px;
-position: absolute;
-width: 135%;
-height: 140%;
-display: flex;
-align-items: center;
-justify-content: center;
-background: radial-gradient(circle at center, rgba(0, 0, 0, -2.4), rgba(0, 0, 0, 0.9));
-backdrop-filter: blur(8px);
-transform: translate(-157px, -108px) scale(0.75);
-}
-#table {
-transform: translate(-50%, -54%) perspective(1200px) rotateX(15deg) scale(0.57);
-}
-#direction-arrow {
-width: 551px;
-height: 914px;
-opacity: 0.12;
-        transform: translate(-49.5%, -50%) rotateX(65deg) scale(0.75);
-}
-#handContainer {
-width: 51%;
-height: 115px;
-}
-.card {
-width: 65px;
-height: 100px;
-margin-left: -40px;
-}
-.opponent-slot {
-width: 130px;
-height: 80px;
-font-size: 12px;
-}
-.mini-card { width: 30px; height: 42px; }
-.opp-hand { width: 130px; height: 70px; transform: translateY(-15px); }
-#playersBar {
-padding: 6px 20px;
-font-size: 14px;
-}
- #light-bulb {
-        width: 30px;
-        height: 30px;
-        transform: translate(-60%, -277%);
-}
-#player-hand {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    display: flex;
-    align-items: flex-end;
-    height: 180px;
-    pointer-events: auto;
-    transform: scale(0.8) translate(-135px, 38px);
-}
-#opponents-container {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    transform: scale(0.8) translate(-4px, -38px);
-}
-#your-turn-indicator {
-    position: relative;
-    bottom: 53px;
-    right: -9px;
-    color: gold;
-    text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
-    font-weight: bold;
-    margin-top: 50px;
-    margin-left: 50px;
-    font-size: 20px;
-    transform: scale(0.7) translate(-111px, 25px);
-}
-#your-turn-indicator {
-    position: relative;
-    bottom: 53px;
-    right: -9px;
-    color: gold;
-    text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
-    font-weight: bold;
-    margin-top: 50px;
-    margin-left: 50px;
-    font-size: 20px;
-    transform: scale(0.7) translate(-111px, 25px);
-}
-#my-card-count {
-    position: relative;
-    bottom: 161px;
-    right: 25px;
-    color: gold;
-    text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
-    font-weight: bold;
-    margin-top: 50px;
-    margin-left: 50px;
-    font-size: 20px;
-    transform: scale(0.7) translate(300px, 74px);
-}
+
+/* =============================================================
+   RESPONSIVE BREAKPOINTS
+   ─ Large Desktop   1440px +
+   ─ Laptop          950px – 1199px
+   ─ Tablet Portrait 769px – 949px
+   ─ Tablet Landscape 769px – 1024px (landscape)
+   ─ Phone Portrait  ≤ 768px
+   ─ Phone Landscape ≤ 768px (landscape)
+   ─ Tiny Phones     ≤ 380px
+   ============================================================= */
+
+/* ── LARGE DESKTOP (1440px+) ─────────────────────────────── */
+@media (min-width: 1440px) {
+  #lobby h2 { font-size: 56px; }
+
+  #handContainer { width: 800px; height: 200px; }
+
+  .card {
+    width: 100px;
+    height: 155px;
+    margin-left: -62px;
+  }
+
+  #table { gap: 80px; padding: 50px; }
+
+  .opponent-slot { width: 180px; height: 110px; }
+  .mini-card { width: 50px; height: 72px; }
+  .opp-hand  { width: 180px; height: 90px; }
 }
 
+/* ── LAPTOP / DESKTOP (950px – 1199px) ──────────────────── */
+@media (max-width: 1199px) and (min-width: 950px) {
+  #handContainer { width: 600px; height: 165px; }
 
+  .card {
+    width: 80px;
+    height: 125px;
+    margin-left: -50px;
+  }
+
+  #table { gap: 50px; padding: 35px; }
+
+  .opponent-slot { width: 150px; height: 88px; font-size: 13px; }
+  .mini-card { width: 40px; height: 58px; }
+  .opp-hand  { width: 150px; height: 75px; }
+
+  #light-bulb { width: 55px; height: 55px; }
+  #my-card-count { margin-left: 460px; font-size: 18px; }
+}
+
+/* ── TABLET PORTRAIT (769px – 949px) ────────────────────── */
+@media (max-width: 949px) and (min-width: 769px) {
+  #lobby {
+    padding: 30px 20px;
+    box-sizing: border-box;
+    transform: none;
+    overflow-y: auto;
+    justify-content: center;
+  }
+
+  #lobby h2 { font-size: 36px; margin-bottom: 20px; }
+  #lobby h3 { font-size: 16px; text-align: center; }
+  #lobby input  { width: 220px; font-size: 15px; }
+  #lobby button { width: 230px; font-size: 15px; }
+
+  #table {
+    transform: translate(-50%, -54%) perspective(1200px) rotateX(15deg) scale(0.65);
+  }
+
+  #direction-arrow {
+    width: 500px;
+    height: 830px;
+    opacity: 0.12;
+    transform: translate(-50%, -50%) rotateX(65deg);
+  }
+
+  #handContainer {
+    width: 60%;
+    height: 130px;
+    border-radius: 70% 70% 0 0;
+  }
+
+  .card { width: 62px; height: 96px; margin-left: -38px; }
+  .card:hover { transform: translateY(-25px) scale(1.15); }
+
+  #player-hand { height: 120px; bottom: 8px; transform: translateX(-50%); }
+
+  .opponent-slot { width: 128px; height: 76px; font-size: 12px; padding: 6px; }
+  .mini-card { width: 29px; height: 42px; }
+  .opp-hand  { width: 128px; height: 65px; }
+
+  #light-bulb { width: 32px; height: 32px; transform: translate(-60%, -270%); }
+
+  #your-turn-indicator {
+    position: absolute;
+    left: 12px; bottom: 100px;
+    font-size: 15px; margin: 0; transform: none;
+  }
+
+  #my-card-count {
+    position: absolute;
+    right: 12px; bottom: 100px;
+    font-size: 15px; margin: 0; transform: none;
+  }
+
+  #playersBar { padding: 6px 18px; font-size: 13px; }
+}
+
+/* ── TABLET LANDSCAPE (769px – 1024px, landscape) ───────── */
+@media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
+  #lobby {
+    padding: 20px;
+    box-sizing: border-box;
+    transform: none;
+    overflow-y: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    align-content: center;
+  }
+
+  #lobby h2 { width: 100%; text-align: center; font-size: 30px; margin-bottom: 10px; }
+
+  #table {
+    transform: translate(-50%, -50%) perspective(1200px) rotateX(15deg) scale(0.55);
+  }
+
+  #handContainer { width: 55%; height: 120px; border-radius: 70% 70% 0 0; }
+
+  .card { width: 55px; height: 86px; margin-left: -34px; }
+  .card:hover { transform: translateY(-18px) scale(1.1); }
+
+  .opponent-slot { width: 118px; height: 68px; font-size: 11px; padding: 4px; }
+  .mini-card { width: 26px; height: 38px; }
+  .opp-hand  { width: 118px; height: 58px; }
+
+  #light-bulb { width: 28px; height: 28px; transform: translate(-60%, -260%); }
+
+  #your-turn-indicator {
+    position: absolute;
+    left: 10px; bottom: 95px;
+    font-size: 13px; margin: 0; transform: none;
+  }
+
+  #my-card-count {
+    position: absolute;
+    right: 10px; bottom: 95px;
+    font-size: 13px; margin: 0; transform: none;
+  }
+}
+
+/* ── PHONE PORTRAIT (≤ 768px) ────────────────────────────── */
 @media (max-width: 768px) {
-body {
-overflow: hidden;
-}
-/* Make table smaller and centered */
-#table {
-transform: translate(-50%, -50%) perspective(1200px) rotateX(15deg) scale(0.75);
-z-index: 1; /* ensure table is above opponents */
-}
-/* Reduce arrow size */
-#direction-arrow {
-width: 420px;
-height: 600px;
-opacity: 0.1;
-}
-/* Hand container responsive */
-#handContainer {
-width: 100%;
-height: 150px;
-border-radius: 60% 60% 0 0;
-}
-/* Player cards smaller */
-.card {
-width: 55px;
-height: 85px;
-margin-left: -35px;
-}
-/* make opponent slots sit behind table to avoid overlapping */
-.opponent-slot {
-z-index: 0;
-}
-/* Disable big hover jump on mobile */
-.card:hover {
-transform: translateY(-20px) scale(1.05);
-}
-/* Player hand position */
-#player-hand {
-height: 130px;
-bottom: 5px;
-}
-/* Fix YOUR TURN text */
-#your-turn-indicator {
-position: absolute;
-left: 15px;
-bottom: 115px;
-font-size: 14px;
-margin: 0;
-}
-/* Fix card count */
-#my-card-count {
-position: absolute;
-right: 15px;
-bottom: 115px;
-font-size: 14px;
-margin: 0;
-}
-/* Opponent boxes smaller */
-.opponent-slot {
-width: 110px;
-height: 70px;
-padding: 4px;
-}
-.mini-card {
-width: 28px;
-height: 40px;
-}
-.opp-hand {
-width: 110px;
-height: 60px;
-}
-/* Reduce light bulb size */
-#light-bulb {
-width: 40px;
-height: 40px;
-transform: translate(-60%, -180%);
-}
-}
-/* landscape-specific adjustments for phones */
-@media (max-width: 768px) and (orientation: landscape) {
-/* make everything much smaller so board is visible */
-#lobby {
-padding: 20px;
-position: absolute;
-width: 135%;
-height: 140%;
-display: flex;
-align-items: center;
-justify-content: center;
-background: radial-gradient(circle at center, rgba(0, 0, 0, -2.4), rgba(0, 0, 0, 0.9));
-backdrop-filter: blur(8px);
-transform: translate(-157px, -108px) scale(0.75);
-}
-#table {
-transform: translate(-50%, -50%) perspective(1200px) rotateX(15deg) scale(0.5);
-z-index: 1; /* ensure table is above opponents */
-}
-#direction-arrow {
-width: 377px;
-height: 660px;
-}
-/* reduce light bulb size further */
-#light-bulb {
-width: 30px;
-height: 30px;
-transform: translate(-60%, -230%);
-}
-/* tighten hand container and shrink cards */
-#handContainer {
-bottom: 4px;
-left: 50%;
-transform: translateX(-50%);
-width: 95%;
-max-height: 35%;
-}
-.card {
-width: 40px;
-height: 65px;
-margin-left: -25px;
-}
-/* opponent boxes much smaller */
-.opponent-slot {
-width: 80px;
-height: 50px;
-padding: 2px;
-font-size: 10px;
-z-index: 0; /* behind table */
-}
-#opponents-container {
-transform: scale(0.8);
-}
-.mini-card {
-width: 20px;
-height: 28px;
-}
-.opp-hand {
-width: 80px;
-height: 40px;
-}
-#playersBar {
-top: 3px;
-left: 50%;
-transform: translateX(-50%);
-padding: 4px 12px;
-font-size: 12px;
-}
-#direction-arrow {
-width: 365px;
-height: 610px;
-opacity: 0.12;
-}
+  body { overflow: hidden; }
+
+  #lobby {
+    box-sizing: border-box;
+    padding: 24px 16px;
+    transform: none;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
+  #lobby h2 { font-size: 30px; margin-top: 20px; margin-bottom: 20px; text-align: center; }
+  #lobby h3 { font-size: 15px; text-align: center; }
+  #lobby input  { width: calc(100% - 32px); max-width: 300px; font-size: 15px; }
+  #lobby button { width: calc(100% - 32px); max-width: 300px; font-size: 15px; padding: 13px; }
+  #players { width: 100%; text-align: center; }
+
+  #table {
+    transform: translate(-50%, -50%) perspective(1200px) rotateX(15deg) scale(0.72);
+    z-index: 1;
+  }
+
+  #direction-arrow {
+    width: 400px; height: 580px; opacity: 0.10;
+    transform: translate(-50%, -50%) rotateX(65deg);
+  }
+
+  #handContainer { width: 100%; height: 148px; border-radius: 60% 60% 0 0; }
+
+  .card { width: 54px; height: 84px; margin-left: -34px; }
+  .card:hover { transform: translateY(-18px) scale(1.08); }
+
+  #player-hand { height: 128px; bottom: 5px; }
+
+  .opponent-slot { width: 108px; height: 68px; padding: 4px; font-size: 11px; z-index: 0; }
+  .mini-card { width: 27px; height: 39px; }
+  .opp-hand  { width: 108px; height: 58px; }
+
+  #light-bulb { width: 38px; height: 38px; transform: translate(-60%, -185%); }
+
+  #your-turn-indicator {
+    position: absolute;
+    left: 14px; bottom: 112px;
+    font-size: 13px; margin: 0; transform: none;
+  }
+
+  #my-card-count {
+    position: absolute;
+    right: 14px; bottom: 112px;
+    font-size: 13px; margin: 0; transform: none;
+  }
+
+  #playersBar { top: 5px; padding: 5px 14px; font-size: 12px; }
+
+  .winner-box { padding: 28px 24px; }
+  .winner-box h1 { font-size: 30px; margin-bottom: 20px; }
+  .winner-buttons button { font-size: 15px; padding: 10px 20px; }
+
+  .modal-box { min-width: 260px; padding: 22px; }
+  .color-grid button { width: 44px; height: 44px; }
 }
 
+/* ── PHONE LANDSCAPE (≤ 768px, landscape) ────────────────── */
+@media (max-width: 768px) and (orientation: landscape) {
+  #lobby {
+    box-sizing: border-box;
+    padding: 10px 20px;
+    transform: none;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 2px;
+  }
+
+  #lobby h2 { font-size: 22px; margin-top: 8px; margin-bottom: 8px; }
+  #lobby h3 { font-size: 13px; margin: 3px 0; }
+  #lobby input  { width: 220px; padding: 8px; font-size: 13px; margin: 3px; }
+  #lobby button { width: 230px; padding: 8px; font-size: 13px; margin: 3px; }
+
+  #table {
+    transform: translate(-50%, -50%) perspective(1200px) rotateX(15deg) scale(0.48);
+    z-index: 1;
+  }
+
+  #direction-arrow {
+    width: 350px; height: 580px; opacity: 0.10;
+    transform: translate(-50%, -50%) rotateX(65deg);
+  }
+
+  #handContainer {
+    width: 90%; height: 108px; border-radius: 55% 55% 0 0;
+    bottom: 0; left: 50%; transform: translateX(-50%);
+  }
+
+  .card { width: 38px; height: 60px; margin-left: -24px; }
+  .card:hover { transform: translateY(-12px) scale(1.05); }
+
+  #player-hand { height: 98px; bottom: 4px; }
+
+  .opponent-slot { width: 78px; height: 50px; padding: 3px; font-size: 9px; z-index: 0; }
+  #opponents-container { transform: scale(0.82); }
+  .mini-card { width: 20px; height: 28px; }
+  .opp-hand  { width: 78px; height: 40px; }
+
+  #light-bulb { width: 26px; height: 26px; transform: translate(-60%, -240%); }
+
+  #your-turn-indicator {
+    position: absolute;
+    left: 8px; bottom: 80px;
+    font-size: 11px; margin: 0; transform: none;
+  }
+
+  #my-card-count {
+    position: absolute;
+    right: 8px; bottom: 80px;
+    font-size: 11px; margin: 0; transform: none;
+  }
+
+  #playersBar { top: 3px; padding: 3px 10px; font-size: 11px; }
+
+  .winner-box { padding: 20px 28px; }
+  .winner-box h1 { font-size: 26px; margin-bottom: 14px; }
+  .winner-buttons { gap: 12px; }
+  .winner-buttons button { font-size: 14px; padding: 9px 16px; }
+}
+
+/* ── TINY PHONES (≤ 380px portrait) ──────────────────────── */
+@media (max-width: 380px) {
+  #lobby h2 { font-size: 26px; }
+  #lobby input,
+  #lobby button { width: calc(100% - 24px); font-size: 14px; }
+
+  #table {
+    transform: translate(-50%, -50%) perspective(1200px) rotateX(15deg) scale(0.60);
+  }
+
+  .card { width: 46px; height: 72px; margin-left: -29px; }
+  #handContainer { height: 130px; }
+
+  .opponent-slot { width: 95px; height: 60px; font-size: 10px; }
+  .mini-card { width: 23px; height: 33px; }
+  .opp-hand  { width: 95px; height: 52px; }
+
+  #light-bulb { width: 32px; height: 32px; transform: translate(-60%, -175%); }
+}
