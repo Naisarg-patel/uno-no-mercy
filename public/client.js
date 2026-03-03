@@ -42,18 +42,6 @@ sounds.play.volume = 0.4;
 sounds.reverse.volume = 0.5;
 sounds.skip.volume = 0.5;
 
-function goFullScreen() {
-    const elem = document.documentElement;
-    if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-    } else if (elem.webkitRequestFullscreen) { /* Safari */
-        elem.webkitRequestFullscreen();
-    } else if (elem.msRequestFullscreen) { /* IE11 */
-        elem.msRequestFullscreen();
-    }
-}
-
-goFullScreen();
 
 // Update your startGame function to trigger it
 
@@ -90,6 +78,14 @@ function startGame() {
     console.error("Error: currentRoom is null. Did the roomCreated event fire?");
     return;
   }
+// Trigger Full Screen for Mobile
+  const elem = document.documentElement;
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen();
+  } else if (elem.webkitRequestFullscreen) { /* Safari/iOS */
+    elem.webkitRequestFullscreen();
+  }
+
   socket.emit("startGame", {roomId : currentRoom});
 }
 

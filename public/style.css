@@ -868,6 +868,7 @@ transform: translate(-157px, -108px) scale(0.75);
 }
 #table {
 transform: translate(-50%, -50%) perspective(1200px) rotateX(15deg) scale(0.5);
+z-index: 1; /* ensure table is above opponents */
 }
 #direction-arrow {
 width: 377px;
