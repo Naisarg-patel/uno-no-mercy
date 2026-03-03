@@ -465,7 +465,6 @@ body::before {
   text-shadow: 0 0 20px rgba(255,215,0,0.8);
   font-weight: bold;
   margin-top: 79px;
-  margin-left: 530px;
   font-size: 20px;
 }
 
@@ -668,51 +667,92 @@ body::before {
   100% { opacity: 0; }
 }
 
-@media (max-width: 900px) {
+/* ================= MOBILE FIX ================= */
 
-   #game {
-    transform-origin: top center;
+@media (max-width: 768px) {
+
+  body {
+    overflow: hidden;
   }
 
-  .card-img {
-    width: 50px !important;
+  /* Make table smaller and centered */
+  #table {
+    transform: translate(-50%, -50%) perspective(1200px) rotateX(15deg) scale(0.75);
+  }
+
+  /* Reduce arrow size */
+  #direction-arrow {
+    width: 420px;
+    height: 600px;
+    opacity: 0.1;
+  }
+
+  /* Hand container responsive */
+  #handContainer {
+    width: 100%;
+    height: 150px;
+    border-radius: 60% 60% 0 0;
+  }
+
+  /* Player cards smaller */
+  .card {
+    width: 55px;
+    height: 85px;
+    margin-left: -35px;
+  }
+
+  /* Disable big hover jump on mobile */
+  .card:hover {
+    transform: translateY(-20px) scale(1.05);
+  }
+
+  /* Player hand position */
+  #player-hand {
+    height: 130px;
+    bottom: 5px;
+  }
+
+  /* Fix YOUR TURN text */
+  #your-turn-indicator {
+    position: absolute;
+    left: 15px;
+    bottom: 115px;
+    font-size: 14px;
+    margin: 0;
+  }
+
+  /* Fix card count */
+  #my-card-count {
+    position: absolute;
+    right: 15px;
+    bottom: 115px;
+    font-size: 14px;
+    margin: 0;
+  }
+
+  /* Opponent boxes smaller */
+  .opponent-slot {
+    width: 110px;
+    height: 70px;
+    padding: 4px;
   }
 
   .mini-card {
-    width: 35px;
+    width: 28px;
+    height: 40px;
   }
 
-  #player-hand {
-    bottom: 0px;
-    height: 120px;
+  .opp-hand {
+    width: 110px;
+    height: 60px;
   }
 
-  #opponents-container {
-    transform: scale(0.9);
+  /* Reduce light bulb size */
+  #light-bulb {
+    width: 40px;
+    height: 40px;
+    transform: translate(-60%, -180%);
   }
 
-  .opponent-slot {
-    width: 130px !important;
-    padding: 5px !important;
-  }
-
-  .opp-hand img {
-    width: 25px !important;
-  }
-
-  #deck img,
-  #discard img {
-    width: 65px !important;
-  }
 }
 
-.card {
-  touch-action: manipulation;
-  padding: 5px;
-}
-
-.card,
-.mini-card,
-.opponent-slot {
-  will-change: transform;
-}

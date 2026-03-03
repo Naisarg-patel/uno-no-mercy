@@ -741,15 +741,14 @@ function renderOpponents(players, currentTurnName) {
 }
 
 function createCurvedHand(container, total) {
-  const spread = window.innerWidth < 900 ? 6 : 10;
-  const radius = window.innerWidth < 900 ? 30 : 50;
+
+  const isMobile = window.innerWidth < 768;
+
+  const spread = isMobile ? 5 : 10;
+  const radius = isMobile ? 25 : 50;
+  const curveHeight = isMobile ? 6 : 12;
 
   for (let i = 0; i < total; i++) {
-    const isMobile = window.innerHeight < 500;
-
-    const spread = isMobile ? 5 : 10;
-    const radius = isMobile ? 25 : 50;
-    const curveHeight = isMobile ? 6 : 12;
 
     const img = document.createElement("img");
     img.src = "cards/card_back.png";
