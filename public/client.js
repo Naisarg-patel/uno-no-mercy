@@ -658,37 +658,37 @@ function getSeatMap(total) {
   const map = {
     2: [
       { bottom: "20px", left: "50%", transform: "translateX(-50%)" }, // YOU
-      { top: "8%", left: "50%", transform: "translateX(-50%)" }
+      { top: "3%", left: "50%", transform: "translateX(-50%)" }
     ],
 
     3: [
       {}, // YOU
-      { bottom: "25%", left: "8%" },        // bottom left
-      { top: "8%", left: "50%", transform: "translateX(-50%)" }
+      { bottom: "15%", left: "8%" },        // bottom left
+      { top: "3%", left: "50%", transform: "translateX(-50%)" }
     ],
 
     4: [
       {}, // YOU
-      { bottom: "25%", left: "8%" },        // bottom left
-      { top: "8%", left: "8%" },            // top left
-      { top: "8%", right: "8%" }            // top right
+      { bottom: "15%", left: "8%" },        // bottom left
+      { top: "3%", left: "8%" },            // top left
+      { top: "3%", right: "8%" }            // top right
     ],
 
     5: [
       {}, // YOU
-      { bottom: "25%", left: "8%" },
-      { top: "8%", left: "8%" },
-      { top: "8%", left: "50%", transform: "translateX(-50%)" },
-      { top: "8%", right: "8%" }
+      { bottom: "15%", left: "8%" },
+      { top: "3%", left: "8%" },
+      { top: "3%", left: "50%", transform: "translateX(-50%)" },
+      { top: "3%", right: "8%" }
     ],
 
     6: [
       {}, // YOU
-      { bottom: "25%", left: "8%" },       // relative 1
-      { top: "8%", left: "8%" },           // relative 2
-      { top: "8%", left: "50%", transform: "translateX(-50%)" }, // relative 3
-      { top: "8%", right: "8%" },          // relative 4
-      { bottom: "25%", right: "8%" }       // relative 5
+      { bottom: "15%", left: "8%" },       // relative 1
+      { top: "3%", left: "8%" },           // relative 2
+      { top: "3%", left: "50%", transform: "translateX(-50%)" }, // relative 3
+      { top: "3%", right: "8%" },          // relative 4
+      { bottom: "15%", right: "8%" }       // relative 5
     ]
   };
 
@@ -741,10 +741,15 @@ function renderOpponents(players, currentTurnName) {
 }
 
 function createCurvedHand(container, total) {
-  const spread = 10;
-  const radius = 50;
+  const spread = window.innerWidth < 900 ? 6 : 10;
+  const radius = window.innerWidth < 900 ? 30 : 50;
 
   for (let i = 0; i < total; i++) {
+    const isMobile = window.innerHeight < 500;
+
+    const spread = isMobile ? 5 : 10;
+    const radius = isMobile ? 25 : 50;
+    const curveHeight = isMobile ? 6 : 12;
 
     const img = document.createElement("img");
     img.src = "cards/card_back.png";
@@ -754,7 +759,7 @@ function createCurvedHand(container, total) {
     const rad = angle * Math.PI / 180;
 
     const x = Math.sin(rad) * radius;
-    const y = Math.cos(rad) * 12;
+    const y = Math.cos(rad) * curveHeight;
 
     img.style.position = "absolute";
     img.style.left = "50%";

@@ -667,3 +667,52 @@ body::before {
   90% { opacity: 1; }
   100% { opacity: 0; }
 }
+
+@media (max-width: 900px) {
+
+   #game {
+    transform-origin: top center;
+  }
+
+  .card-img {
+    width: 50px !important;
+  }
+
+  .mini-card {
+    width: 35px;
+  }
+
+  #player-hand {
+    bottom: 0px;
+    height: 120px;
+  }
+
+  #opponents-container {
+    transform: scale(0.9);
+  }
+
+  .opponent-slot {
+    width: 130px !important;
+    padding: 5px !important;
+  }
+
+  .opp-hand img {
+    width: 25px !important;
+  }
+
+  #deck img,
+  #discard img {
+    width: 65px !important;
+  }
+}
+
+.card {
+  touch-action: manipulation;
+  padding: 5px;
+}
+
+.card,
+.mini-card,
+.opponent-slot {
+  will-change: transform;
+}
