@@ -17,6 +17,47 @@ const playersBar = document.getElementById("playersBar");
 const draw = document.getElementById("drawBtn");
 const modal = document.getElementById('colorModal');
 
+const sounds = {
+  draw: new Audio("/sounds/draw.mp3"),
+  eliminated: new Audio("/sounds/eliminated.mp3"),
+  hover: new Audio("/sounds/hover.mp3"),
+  model: new Audio("/sounds/model.mp3"),
+  penalty: new Audio("/sounds/penelty.mp3"), // note spelling matches file
+  play: new Audio("/sounds/play.mp3"),
+  reverse: new Audio("/sounds/reverse.mp3"),
+  skip: new Audio("/sounds/skip.mp3"),
+};
+
+// preload all audio and set volumes
+Object.values(sounds).forEach(a => {
+  a.preload = 'auto';
+});
+
+sounds.draw.volume = 0.3;
+sounds.eliminated.volume = 0.6;
+sounds.hover.volume = 0.2;
+sounds.model.volume = 0.5;
+sounds.penalty.volume = 0.8;
+sounds.play.volume = 0.4;
+sounds.reverse.volume = 0.5;
+sounds.skip.volume = 0.5;
+
+
+function playSound(name) {
+  if (!sounds[name]) return;
+  sounds[name].currentTime = 0;
+  sounds[name].play();
+}
+
+// hover sound will be attached to cards individually in renderHand
+// (avoids noisy button chattering).
+// keep this snippet in case other controls need it later.
+// document.addEventListener('DOMContentLoaded', () => {
+//   document.querySelectorAll('button').forEach(btn => {
+//     btn.addEventListener('mouseenter', () => playSound('hover'));
+//   });
+// });
+
 function createRoom() {
   const name = document.getElementById("name").value;
   socket.emit("createRoom", { name });
@@ -47,11 +88,12 @@ function drawCard() {
     }
 
     if(draw) draw.disabled = true;
+    playSound("draw");
     socket.emit("drawCard", { roomId: currentRoom });  
 }
 
 function playCard(cardIndex) {
-  if(!isMyTurn ){
+  if (!isMyTurn) {
     socket.emit("error", "not yout turn");
   }
 
@@ -60,8 +102,9 @@ function playCard(cardIndex) {
                     card.specialMove === "wild_draw6" ||
                     card.specialMove === "wild_draw10";
 
-  if(wildcard){
-    // show color picker but do not emit yet
+  if (wildcard) {
+    // wild cards are treated as a "penalty" sound for the picker phase
+    playSound("penalty");
     savedCardIndex = cardIndex;
     modalActive = true;
     rouletteColorPick = false; // normal wild
@@ -70,10 +113,10 @@ function playCard(cardIndex) {
     if (cancelBtn) cancelBtn.style.display = 'block'; // explicitly show
     document.getElementById('colorModal').style.display = "block";
     console.log("Modal opened for card index:", cardIndex);
-  }
-  else
-  {
-    socket.emit("playCard", { roomId : currentRoom, cardIndex});
+  } else {
+    // non‑wild play
+    playSound("play");
+    socket.emit("playCard", { roomId: currentRoom, cardIndex });
   }
 }
 
@@ -83,7 +126,8 @@ function pickColor(color){
   }
 
   console.log("Color picked:", color, "for card index:", savedCardIndex);
-  
+  playSound("model");
+  playSound("play");
   socket.emit("playCard", { 
         roomId: currentRoom, 
         cardIndex: savedCardIndex, 
@@ -194,7 +238,7 @@ socket.on("chooseSwapTarget", ( data ) => {
 
     const swapModal = document.getElementById("swapModal");
     const list = document.getElementById("swapPlayerList");
-
+    playSound("model");
     list.innerHTML = "";
 
     data.targets.forEach(target => {
@@ -217,7 +261,7 @@ socket.on("chooseSwapTarget", ( data ) => {
 socket.on("playerEliminated", ({ playerName }) => {
   const overlay = document.getElementById("elimination-overlay");
   if (!overlay) return;
-
+  playSound("eliminated");
   const text = document.createElement("div");
   text.className = "elimination-text";
   text.innerText = `${playerName} ELIMINATED 💀`;
@@ -258,6 +302,51 @@ socket.on("gameState", (data) => {
   const gameUI = document.getElementById("game");
   if (!gameUI || gameUI.style.display === "none") return;
 
+  // play a draw sound if our hand grew (server dealt us cards)
+  if (window.lastGameState && Array.isArray(data.hand) && Array.isArray(window.lastGameState.hand)) {
+    if (data.hand.length > window.lastGameState.hand.length) {
+      playSound('draw');
+    }
+  }
+
+  // penalty notification / looping
+  if (window.lastGameState) {
+    const prevPenalty = window.lastGameState.pendingDrawPenalties || 0;
+    const newPenalty = data.pendingDrawPenalties || 0;
+    if (prevPenalty === 0 && newPenalty > 0) {
+      // penalty just started; clear any previous interval/sound
+      if (window._penaltyInterval) {
+        clearInterval(window._penaltyInterval);
+        window._penaltyInterval = null;
+      }
+      sounds.penalty.pause();
+      sounds.penalty.currentTime = 0;
+
+      // check if the card that caused penalty is a wild-type
+      const top = data.topCard;
+      if (
+        top &&
+        top.color === 'wild' &&
+        (top.value && top.value.toString().startsWith('draw'))
+      ) {
+        playSound('model');
+      }
+
+      playSound('penalty');
+      // keep playing until penalty cleared
+      window._penaltyInterval = setInterval(() => playSound('penalty'), 2000);
+    } else if (prevPenalty > 0 && newPenalty === 0) {
+      // penalty resolved
+      if (window._penaltyInterval) {
+        clearInterval(window._penaltyInterval);
+        window._penaltyInterval = null;
+      }
+      // stop any currently playing penalty sound immediately
+      sounds.penalty.pause();
+      sounds.penalty.currentTime = 0;
+    }
+  }
+
   myHand = data.hand || [];
   isMyTurn = data.isMyTurn;
 
@@ -268,7 +357,7 @@ socket.on("gameState", (data) => {
 
   // Only change if direction actually changed
   if (window.lastDirection !== data.reverse) {
-
+      playSound("reverse");
     // Change image first
     arrow.src = data.reverse
       ? "images/arrowreverse.png"
@@ -320,6 +409,23 @@ socket.on("gameState", (data) => {
  const topCardImg = document.getElementById("top-card-img");
 
 if (topCardImg && data.topCard) {
+  // determine if this is a *new* top card compared with last state
+  const prevTop = window.lastGameState && window.lastGameState.topCard;
+  const newTop = data.topCard;
+  if (newTop && (!prevTop || prevTop.color !== newTop.color || prevTop.value !== newTop.value)) {
+    // play appropriate effect for the card that was just discarded
+    if (newTop.value === 'skip') {
+      playSound('skip');
+    } else if (newTop.value === 'reverse') {
+      // reverse sound is already handled by direction detection further down,
+      // but play it early so it doesn't feel delayed
+      playSound('reverse');
+    } else {
+      // generic card play
+      playSound('play');
+    }
+  }
+
   topCardImg.src = getCardImage(data.topCard);
 
   // Optional glow color
@@ -406,6 +512,12 @@ socket.on("gameOver", (data) => {
   const screen = document.getElementById("winner-screen");
   const name = document.getElementById("winner-name");
 
+  // stop any looping penalty sound
+  if (window._penaltyInterval) {
+    clearInterval(window._penaltyInterval);
+    window._penaltyInterval = null;
+  }
+
   if (!screen) {
     console.error("gameOver: winner-screen element not found");
     return;
@@ -423,6 +535,12 @@ socket.on("gameOver", (data) => {
 
 // new event sent by server when we should return to lobby state for a rematch
 socket.on("backToLobby", () => {
+  // clear any ringing penalty countdown
+  if (window._penaltyInterval) {
+    clearInterval(window._penaltyInterval);
+    window._penaltyInterval = null;
+  }
+
   lobby.style.display = "flex";
   gameUI.style.display = "none";
   const screen = document.getElementById("winner-screen");
@@ -487,6 +605,8 @@ function renderHand() {
       cardDiv.onclick = () => playCard(origIndex);
     }
 
+    // add hover sound immediately when pointer enters card area
+    cardDiv.addEventListener('pointerenter', () => playSound('hover'));
     // FAN ROTATION EFFECT
     const angle =
       total > 1
@@ -502,6 +622,8 @@ function renderHand() {
     img.onerror = () => {
       console.error("Missing image:", img.src);
     };
+    // also catch when hovering the image itself (some browsers fire on img only)
+    img.addEventListener('mouseover', () => playSound('hover'));
 
     cardDiv.appendChild(img);
 
