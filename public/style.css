@@ -29,14 +29,17 @@ body::before {
   100% { transform: translate(-52%, -50%) scale(1.2); }
 }
 #lobby {
-  position: absolute;
-  width: 100%;
-  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-
+  justify-content: flex-start;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
   background: radial-gradient(circle at center, rgba(0,0,0,0.6), rgba(0,0,0,0.9));
   backdrop-filter: blur(8px);
 }
@@ -465,6 +468,7 @@ body::before {
   text-shadow: 0 0 20px rgba(255,215,0,0.8);
   font-weight: bold;
   margin-top: 79px;
+  margin-left: 530px;
   font-size: 20px;
 }
 
@@ -667,92 +671,257 @@ body::before {
   100% { opacity: 0; }
 }
 
-/* ================= MOBILE FIX ================= */
+@media(max-width: 950px) and (min-width: 769px) {
+#lobby {
+padding: 20px;
+position: absolute;
+width: 135%;
+height: 140%;
+display: flex;
+align-items: center;
+justify-content: center;
+background: radial-gradient(circle at center, rgba(0, 0, 0, -2.4), rgba(0, 0, 0, 0.9));
+backdrop-filter: blur(8px);
+transform: translate(-157px, -108px) scale(0.75);
+}
+#table {
+transform: translate(-50%, -54%) perspective(1200px) rotateX(15deg) scale(0.57);
+}
+#direction-arrow {
+width: 551px;
+height: 914px;
+opacity: 0.12;
+        transform: translate(-49.5%, -50%) rotateX(65deg) scale(0.75);
+}
+#handContainer {
+width: 51%;
+height: 115px;
+}
+.card {
+width: 65px;
+height: 100px;
+margin-left: -40px;
+}
+.opponent-slot {
+width: 130px;
+height: 80px;
+font-size: 12px;
+}
+.mini-card { width: 30px; height: 42px; }
+.opp-hand { width: 130px; height: 70px; transform: translateY(-15px); }
+#playersBar {
+padding: 6px 20px;
+font-size: 14px;
+}
+ #light-bulb {
+        width: 30px;
+        height: 30px;
+        transform: translate(-60%, -277%);
+}
+#player-hand {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    display: flex;
+    align-items: flex-end;
+    height: 180px;
+    pointer-events: auto;
+    transform: scale(0.8) translate(-135px, 38px);
+}
+#opponents-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    transform: scale(0.8) translate(-4px, -38px);
+}
+#your-turn-indicator {
+    position: relative;
+    bottom: 53px;
+    right: -9px;
+    color: gold;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+    font-weight: bold;
+    margin-top: 50px;
+    margin-left: 50px;
+    font-size: 20px;
+    transform: scale(0.7) translate(-111px, 25px);
+}
+#your-turn-indicator {
+    position: relative;
+    bottom: 53px;
+    right: -9px;
+    color: gold;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+    font-weight: bold;
+    margin-top: 50px;
+    margin-left: 50px;
+    font-size: 20px;
+    transform: scale(0.7) translate(-111px, 25px);
+}
+#my-card-count {
+    position: relative;
+    bottom: 161px;
+    right: 25px;
+    color: gold;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+    font-weight: bold;
+    margin-top: 50px;
+    margin-left: 50px;
+    font-size: 20px;
+    transform: scale(0.7) translate(300px, 74px);
+}
+}
+
 
 @media (max-width: 768px) {
-
-  body {
-    overflow: hidden;
-  }
-
-  /* Make table smaller and centered */
-  #table {
-    transform: translate(-50%, -50%) perspective(1200px) rotateX(15deg) scale(0.75);
-  }
-
-  /* Reduce arrow size */
-  #direction-arrow {
-    width: 420px;
-    height: 600px;
-    opacity: 0.1;
-  }
-
-  /* Hand container responsive */
-  #handContainer {
-    width: 100%;
-    height: 150px;
-    border-radius: 60% 60% 0 0;
-  }
-
-  /* Player cards smaller */
-  .card {
-    width: 55px;
-    height: 85px;
-    margin-left: -35px;
-  }
-
-  /* Disable big hover jump on mobile */
-  .card:hover {
-    transform: translateY(-20px) scale(1.05);
-  }
-
-  /* Player hand position */
-  #player-hand {
-    height: 130px;
-    bottom: 5px;
-  }
-
-  /* Fix YOUR TURN text */
-  #your-turn-indicator {
-    position: absolute;
-    left: 15px;
-    bottom: 115px;
-    font-size: 14px;
-    margin: 0;
-  }
-
-  /* Fix card count */
-  #my-card-count {
-    position: absolute;
-    right: 15px;
-    bottom: 115px;
-    font-size: 14px;
-    margin: 0;
-  }
-
-  /* Opponent boxes smaller */
-  .opponent-slot {
-    width: 110px;
-    height: 70px;
-    padding: 4px;
-  }
-
-  .mini-card {
-    width: 28px;
-    height: 40px;
-  }
-
-  .opp-hand {
-    width: 110px;
-    height: 60px;
-  }
-
-  /* Reduce light bulb size */
-  #light-bulb {
-    width: 40px;
-    height: 40px;
-    transform: translate(-60%, -180%);
-  }
-
+body {
+overflow: hidden;
+}
+/* Make table smaller and centered */
+#table {
+transform: translate(-50%, -50%) perspective(1200px) rotateX(15deg) scale(0.75);
+z-index: 1; /* ensure table is above opponents */
+}
+/* Reduce arrow size */
+#direction-arrow {
+width: 420px;
+height: 600px;
+opacity: 0.1;
+}
+/* Hand container responsive */
+#handContainer {
+width: 100%;
+height: 150px;
+border-radius: 60% 60% 0 0;
+}
+/* Player cards smaller */
+.card {
+width: 55px;
+height: 85px;
+margin-left: -35px;
+}
+/* make opponent slots sit behind table to avoid overlapping */
+.opponent-slot {
+z-index: 0;
+}
+/* Disable big hover jump on mobile */
+.card:hover {
+transform: translateY(-20px) scale(1.05);
+}
+/* Player hand position */
+#player-hand {
+height: 130px;
+bottom: 5px;
+}
+/* Fix YOUR TURN text */
+#your-turn-indicator {
+position: absolute;
+left: 15px;
+bottom: 115px;
+font-size: 14px;
+margin: 0;
+}
+/* Fix card count */
+#my-card-count {
+position: absolute;
+right: 15px;
+bottom: 115px;
+font-size: 14px;
+margin: 0;
+}
+/* Opponent boxes smaller */
+.opponent-slot {
+width: 110px;
+height: 70px;
+padding: 4px;
+}
+.mini-card {
+width: 28px;
+height: 40px;
+}
+.opp-hand {
+width: 110px;
+height: 60px;
+}
+/* Reduce light bulb size */
+#light-bulb {
+width: 40px;
+height: 40px;
+transform: translate(-60%, -180%);
+}
+}
+/* landscape-specific adjustments for phones */
+@media (max-width: 768px) and (orientation: landscape) {
+/* make everything much smaller so board is visible */
+#lobby {
+padding: 20px;
+position: absolute;
+width: 135%;
+height: 140%;
+display: flex;
+align-items: center;
+justify-content: center;
+background: radial-gradient(circle at center, rgba(0, 0, 0, -2.4), rgba(0, 0, 0, 0.9));
+backdrop-filter: blur(8px);
+transform: translate(-157px, -108px) scale(0.75);
+}
+#table {
+transform: translate(-50%, -50%) perspective(1200px) rotateX(15deg) scale(0.5);
+}
+#direction-arrow {
+width: 377px;
+height: 660px;
+}
+/* reduce light bulb size further */
+#light-bulb {
+width: 30px;
+height: 30px;
+transform: translate(-60%, -230%);
+}
+/* tighten hand container and shrink cards */
+#handContainer {
+bottom: 4px;
+left: 50%;
+transform: translateX(-50%);
+width: 95%;
+max-height: 35%;
+}
+.card {
+width: 40px;
+height: 65px;
+margin-left: -25px;
+}
+/* opponent boxes much smaller */
+.opponent-slot {
+width: 80px;
+height: 50px;
+padding: 2px;
+font-size: 10px;
+z-index: 0; /* behind table */
+}
+#opponents-container {
+transform: scale(0.8);
+}
+.mini-card {
+width: 20px;
+height: 28px;
+}
+.opp-hand {
+width: 80px;
+height: 40px;
+}
+#playersBar {
+top: 3px;
+left: 50%;
+transform: translateX(-50%);
+padding: 4px 12px;
+font-size: 12px;
+}
+#direction-arrow {
+width: 365px;
+height: 610px;
+opacity: 0.12;
+}
 }
 
