@@ -22,7 +22,6 @@ const sounds = {
   eliminated: new Audio("/sounds/eliminated.mp3"),
   hover: new Audio("/sounds/hover.mp3"),
   model: new Audio("/sounds/model.mp3"),
-  penalty: new Audio("/sounds/penelty.mp3"), // note spelling matches file
   play: new Audio("/sounds/play.mp3"),
   reverse: new Audio("/sounds/reverse.mp3"),
   skip: new Audio("/sounds/skip.mp3"),
@@ -37,7 +36,6 @@ sounds.draw.volume = 0.3;
 sounds.eliminated.volume = 0.6;
 sounds.hover.volume = 0.2;
 sounds.model.volume = 0.5;
-sounds.penalty.volume = 0.8;
 sounds.play.volume = 0.4;
 sounds.reverse.volume = 0.5;
 sounds.skip.volume = 0.5;
@@ -65,10 +63,50 @@ function createRoom() {
   socket.emit("createRoom", { name });
 }
 
-function joinRoom() { 
+function joinRoom() {
   const name = document.getElementById("name").value;
   const roomId = document.getElementById("roomInput").value;
   socket.emit("joinRoom", { roomId, name });
+}
+
+// ── Fullscreen helper – works for all players (host & guests) ──
+function requestFullscreenAllPlayers() {
+  const elem = document.documentElement;
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen().catch(() => {/* silently ignore if browser blocks */ });
+  } else if (elem.webkitRequestFullscreen) { /* Safari / iOS */
+    elem.webkitRequestFullscreen();
+  } else if (elem.mozRequestFullScreen) { /* old Firefox */
+    elem.mozRequestFullScreen();
+  } else if (elem.msRequestFullscreen) { /* IE/Edge */
+    elem.msRequestFullscreen();
+  }
+}
+
+// ── Orientation helpers ────────────────────────────────────────────────
+function lockLandscape() {
+  // Screen Orientation API (Android Chrome, modern browsers)
+  if (screen.orientation && screen.orientation.lock) {
+    screen.orientation.lock('landscape').catch(() => {/* desktop/iOS – silently ignored */ });
+  } else if (screen.lockOrientation) {
+    screen.lockOrientation('landscape');
+  } else if (screen.mozLockOrientation) {
+    screen.mozLockOrientation('landscape');
+  } else if (screen.msLockOrientation) {
+    screen.msLockOrientation('landscape');
+  }
+}
+
+function unlockOrientation() {
+  if (screen.orientation && screen.orientation.unlock) {
+    screen.orientation.unlock();
+  } else if (screen.unlockOrientation) {
+    screen.unlockOrientation();
+  } else if (screen.mozUnlockOrientation) {
+    screen.mozUnlockOrientation();
+  } else if (screen.msUnlockOrientation) {
+    screen.msUnlockOrientation();
+  }
 }
 
 function startGame() {
@@ -78,28 +116,24 @@ function startGame() {
     console.error("Error: currentRoom is null. Did the roomCreated event fire?");
     return;
   }
-// Trigger Full Screen for Mobile
-  const elem = document.documentElement;
-  if (elem.requestFullscreen) {
-    elem.requestFullscreen();
-  } else if (elem.webkitRequestFullscreen) { /* Safari/iOS */
-    elem.webkitRequestFullscreen();
-  }
 
-  socket.emit("startGame", {roomId : currentRoom});
+  // Host goes fullscreen immediately on click
+  requestFullscreenAllPlayers();
+
+  socket.emit("startGame", { roomId: currentRoom });
 }
 
 function drawCard() {
   if (!currentRoom) return;
   // Now 'isMyTurn' and 'currentRoom' are available!
-    if (!isMyTurn) {
-        alert("It's not your turn!");
-        return;
-    }
+  if (!isMyTurn) {
+    alert("It's not your turn!");
+    return;
+  }
 
-    if(draw) draw.disabled = true;
-    playSound("draw");
-    socket.emit("drawCard", { roomId: currentRoom });  
+  if (draw) draw.disabled = true;
+  playSound("draw");
+  socket.emit("drawCard", { roomId: currentRoom });
 }
 
 function playCard(cardIndex) {
@@ -108,9 +142,9 @@ function playCard(cardIndex) {
   }
 
   const card = myHand[cardIndex];
-  const wildcard = card.specialMove === "wild_draw4" || 
-                    card.specialMove === "wild_draw6" ||
-                    card.specialMove === "wild_draw10";
+  const wildcard = card.specialMove === "wild_draw4" ||
+    card.specialMove === "wild_draw6" ||
+    card.specialMove === "wild_draw10";
 
   if (wildcard) {
     // wild cards are treated as a "penalty" sound for the picker phase
@@ -130,20 +164,20 @@ function playCard(cardIndex) {
   }
 }
 
-function pickColor(color){
-  if(savedCardIndex === null){
+function pickColor(color) {
+  if (savedCardIndex === null) {
     socket.emit("error", "saved index is null");
   }
 
   console.log("Color picked:", color, "for card index:", savedCardIndex);
   playSound("model");
   playSound("play");
-  socket.emit("playCard", { 
-        roomId: currentRoom, 
-        cardIndex: savedCardIndex, 
-        chosenColor: color 
+  socket.emit("playCard", {
+    roomId: currentRoom,
+    cardIndex: savedCardIndex,
+    chosenColor: color
   });
-  
+
   document.getElementById("colorModal").style.display = "none";
   const cancelBtn = document.getElementById('colorCancelBtn');
   if (cancelBtn) cancelBtn.style.display = 'none';
@@ -230,6 +264,10 @@ socket.on("roomUpdate", ({ players, hostId, rematch }) => {
 
 socket.on("gameStarted", () => {
   console.log("game started");
+  // All players (including non-hosts) go fullscreen when the game begins
+  requestFullscreenAllPlayers();
+  // Lock screen to landscape so the game UI always shows correctly
+  lockLandscape();
   lobby.style.display = "none";
   gameUI.style.display = "block";
 });
@@ -239,33 +277,33 @@ socket.on("yourHand", (hand) => {
   renderHand();
 });
 
-socket.on("chooseSwapTarget", ( data ) => {
+socket.on("chooseSwapTarget", (data) => {
 
-    if (!data || !data.targets) {
-        console.error("Swap target error: No targets received", data);
-        return;
-    }
+  if (!data || !data.targets) {
+    console.error("Swap target error: No targets received", data);
+    return;
+  }
 
-    const swapModal = document.getElementById("swapModal");
-    const list = document.getElementById("swapPlayerList");
-    playSound("model");
-    list.innerHTML = "";
+  const swapModal = document.getElementById("swapModal");
+  const list = document.getElementById("swapPlayerList");
+  playSound("model");
+  list.innerHTML = "";
 
-    data.targets.forEach(target => {
-        const btn = document.createElement("button");
-        btn.innerText = target.name;
-        btn.onclick = () => {
-            socket.emit("swapHands", {
-                roomId: currentRoom,
-                targetId: target.id
-            });
-            swapModal.style.display = "none";
-        };
-        list.appendChild(btn);
-    });
+  data.targets.forEach(target => {
+    const btn = document.createElement("button");
+    btn.innerText = target.name;
+    btn.onclick = () => {
+      socket.emit("swapHands", {
+        roomId: currentRoom,
+        targetId: target.id
+      });
+      swapModal.style.display = "none";
+    };
+    list.appendChild(btn);
+  });
 
-    swapModal.style.display = "block";
-    modalActive = true;
+  swapModal.style.display = "block";
+  modalActive = true;
 });
 
 socket.on("playerEliminated", ({ playerName }) => {
@@ -319,41 +357,20 @@ socket.on("gameState", (data) => {
     }
   }
 
-  // penalty notification / looping
+  // penalty tracking (sound removed – interval kept for future use)
   if (window.lastGameState) {
     const prevPenalty = window.lastGameState.pendingDrawPenalties || 0;
     const newPenalty = data.pendingDrawPenalties || 0;
     if (prevPenalty === 0 && newPenalty > 0) {
-      // penalty just started; clear any previous interval/sound
       if (window._penaltyInterval) {
         clearInterval(window._penaltyInterval);
         window._penaltyInterval = null;
       }
-      sounds.penalty.pause();
-      sounds.penalty.currentTime = 0;
-
-      // check if the card that caused penalty is a wild-type
-      const top = data.topCard;
-      if (
-        top &&
-        top.color === 'wild' &&
-        (top.value && top.value.toString().startsWith('draw'))
-      ) {
-        playSound('model');
-      }
-
-      playSound('penalty');
-      // keep playing until penalty cleared
-      window._penaltyInterval = setInterval(() => playSound('penalty'), 2000);
     } else if (prevPenalty > 0 && newPenalty === 0) {
-      // penalty resolved
       if (window._penaltyInterval) {
         clearInterval(window._penaltyInterval);
         window._penaltyInterval = null;
       }
-      // stop any currently playing penalty sound immediately
-      sounds.penalty.pause();
-      sounds.penalty.currentTime = 0;
     }
   }
 
@@ -367,7 +384,7 @@ socket.on("gameState", (data) => {
 
   // Only change if direction actually changed
   if (window.lastDirection !== data.reverse) {
-      playSound("reverse");
+    playSound("reverse");
     // Change image first
     arrow.src = data.reverse
       ? "images/arrowreverse.png"
@@ -416,35 +433,35 @@ socket.on("gameState", (data) => {
     }
   }
   /* ------------------ TOP CARD ------------------ */
- const topCardImg = document.getElementById("top-card-img");
+  const topCardImg = document.getElementById("top-card-img");
 
-if (topCardImg && data.topCard) {
-  // determine if this is a *new* top card compared with last state
-  const prevTop = window.lastGameState && window.lastGameState.topCard;
-  const newTop = data.topCard;
-  if (newTop && (!prevTop || prevTop.color !== newTop.color || prevTop.value !== newTop.value)) {
-    // play appropriate effect for the card that was just discarded
-    if (newTop.value === 'skip') {
-      playSound('skip');
-    } else if (newTop.value === 'reverse') {
-      // reverse sound is already handled by direction detection further down,
-      // but play it early so it doesn't feel delayed
-      playSound('reverse');
+  if (topCardImg && data.topCard) {
+    // determine if this is a *new* top card compared with last state
+    const prevTop = window.lastGameState && window.lastGameState.topCard;
+    const newTop = data.topCard;
+    if (newTop && (!prevTop || prevTop.color !== newTop.color || prevTop.value !== newTop.value)) {
+      // play appropriate effect for the card that was just discarded
+      if (newTop.value === 'skip') {
+        playSound('skip');
+      } else if (newTop.value === 'reverse') {
+        // reverse sound is already handled by direction detection further down,
+        // but play it early so it doesn't feel delayed
+        playSound('reverse');
+      } else {
+        // generic card play
+        playSound('play');
+      }
+    }
+
+    topCardImg.src = getCardImage(data.topCard);
+
+    // Optional glow color
+    if (data.topCard.color === "wild") {
+      topCardImg.style.boxShadow = `0 0 20px ${data.currentColor}`;
     } else {
-      // generic card play
-      playSound('play');
+      topCardImg.style.boxShadow = `0 0 20px ${data.topCard.color}`;
     }
   }
-
-  topCardImg.src = getCardImage(data.topCard);
-
-  // Optional glow color
-  if (data.topCard.color === "wild") {
-    topCardImg.style.boxShadow = `0 0 20px ${data.currentColor}`;
-  } else {
-    topCardImg.style.boxShadow = `0 0 20px ${data.topCard.color}`;
-  }
-}
 
   /* ------------------ HAND + OPPONENTS ------------------ */
   renderHand();
@@ -550,6 +567,9 @@ socket.on("backToLobby", () => {
     clearInterval(window._penaltyInterval);
     window._penaltyInterval = null;
   }
+
+  // Unlock orientation so players can use portrait in the lobby
+  unlockOrientation();
 
   lobby.style.display = "flex";
   gameUI.style.display = "none";
@@ -665,40 +685,50 @@ function rotatePlayers(players) {
 }
 
 function getSeatMap(total) {
+  // Use tighter positions on small/phone-landscape screens
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  const isSmall = w < 768 || h < 450;  // phone portrait OR landscape
+  const isTiny = w < 400;
+
+  const edge = isTiny ? '2%' : isSmall ? '3%' : '8%';
+  const topPos = isTiny ? '2%' : isSmall ? '3%' : '3%';
+  const botPos = isSmall ? '18%' : '15%';
+
   const map = {
     2: [
-      { bottom: "20px", left: "50%", transform: "translateX(-50%)" }, // YOU
-      { top: "3%", left: "50%", transform: "translateX(-50%)" }
+      { bottom: '20px', left: '50%', transform: 'translateX(-50%)' }, // YOU
+      { top: topPos, left: '50%', transform: 'translateX(-50%)' }
     ],
 
     3: [
-      {}, // YOU
-      { bottom: "15%", left: "8%" },        // bottom left
-      { top: "3%", left: "50%", transform: "translateX(-50%)" }
+      {},
+      { bottom: botPos, left: edge },
+      { top: topPos, left: '50%', transform: 'translateX(-50%)' }
     ],
 
     4: [
-      {}, // YOU
-      { bottom: "15%", left: "8%" },        // bottom left
-      { top: "3%", left: "8%" },            // top left
-      { top: "3%", right: "8%" }            // top right
+      {},
+      { bottom: botPos, left: edge },
+      { top: topPos, left: edge },
+      { top: topPos, right: edge }
     ],
 
     5: [
-      {}, // YOU
-      { bottom: "15%", left: "8%" },
-      { top: "3%", left: "8%" },
-      { top: "3%", left: "50%", transform: "translateX(-50%)" },
-      { top: "3%", right: "8%" }
+      {},
+      { bottom: botPos, left: edge },
+      { top: topPos, left: edge },
+      { top: topPos, left: '50%', transform: 'translateX(-50%)' },
+      { top: topPos, right: edge }
     ],
 
     6: [
-      {}, // YOU
-      { bottom: "15%", left: "8%" },       // relative 1
-      { top: "3%", left: "8%" },           // relative 2
-      { top: "3%", left: "50%", transform: "translateX(-50%)" }, // relative 3
-      { top: "3%", right: "8%" },          // relative 4
-      { bottom: "15%", right: "8%" }       // relative 5
+      {},
+      { bottom: botPos, left: edge },
+      { top: topPos, left: edge },
+      { top: topPos, left: '50%', transform: 'translateX(-50%)' },
+      { top: topPos, right: edge },
+      { bottom: botPos, right: edge }
     ]
   };
 
@@ -751,31 +781,48 @@ function renderOpponents(players, currentTurnName) {
 }
 
 function createCurvedHand(container, total) {
-  const spread = window.innerWidth < 900 ? 6 : 10;
-  const radius = window.innerWidth < 900 ? 30 : 50;
+  // Pick visual parameters based on viewport size
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+
+  let spread, radius, curveHeight;
+
+  if (h < 420 || (w < 768 && h < 500)) {
+    // Phone landscape (game locked here) – very compact
+    spread = 4;
+    radius = 18;
+    curveHeight = 5;
+  } else if (w < 768) {
+    // Phone portrait
+    spread = 5;
+    radius = 22;
+    curveHeight = 6;
+  } else if (w < 1024) {
+    // Tablet
+    spread = 7;
+    radius = 35;
+    curveHeight = 9;
+  } else {
+    // Laptop / Desktop
+    spread = 10;
+    radius = 50;
+    curveHeight = 12;
+  }
 
   for (let i = 0; i < total; i++) {
-    const isMobile = window.innerHeight < 500;
-
-    const spread = isMobile ? 5 : 10;
-    const radius = isMobile ? 25 : 50;
-    const curveHeight = isMobile ? 6 : 12;
-
-    const img = document.createElement("img");
-    img.src = "cards/card_back.png";
-    img.className = "mini-card";
+    const img = document.createElement('img');
+    img.src = 'cards/card_back.png';
+    img.className = 'mini-card';
 
     const angle = (i - (total - 1) / 2) * spread;
     const rad = angle * Math.PI / 180;
-
     const x = Math.sin(rad) * radius;
     const y = Math.cos(rad) * curveHeight;
 
-    img.style.position = "absolute";
-    img.style.left = "50%";
-    img.style.bottom = "0";
-    img.style.transform =
-      `translateX(-50%) translate(${x}px, ${-y}px) rotate(${angle}deg)`;
+    img.style.position = 'absolute';
+    img.style.left = '50%';
+    img.style.bottom = '0';
+    img.style.transform = `translateX(-50%) translate(${x}px, ${-y}px) rotate(${angle}deg)`;
 
     container.appendChild(img);
   }
