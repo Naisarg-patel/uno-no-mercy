@@ -252,9 +252,9 @@ socket.on("roomUpdate", ({ players, hostId, rematch }) => {
   const lobbyVisible = window.getComputedStyle(lobby).display !== "none";
   if (lobbyVisible) {
     if (rematch) {
-      playersBar.innerText = "Game over – waiting for host to start new round";
+      playersBar.innerText = "Game over waiting for host to start new round";
     } else if (socket.id === hostId) {
-      playersBar.innerText = "You are the host – press start to play again";
+      playersBar.innerText = "You are the host press start to play again";
     } else {
       playersBar.innerText = "Waiting for host to start game...";
     }
@@ -527,7 +527,7 @@ socket.on("gameState", (data) => {
       const h3 = modal.querySelector("h3");
       if (h3) {
         h3.innerText =
-          "🎰 ROULETTE! Pick a color to DRAW until:";
+          "Pick a color to DRAW ";
       }
       // prevent clicking outside modal from closing
       modal.onclick = (e) => e.stopPropagation();

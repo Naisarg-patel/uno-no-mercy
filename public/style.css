@@ -267,11 +267,11 @@ body::before {
   width: 700px;
   height: 180px;
   border-radius: 80% 80% 0 0;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(15px);
+  background: rgba(0, 0, 0, -10.15);
+  backdrop-filter: blur(23px);
   box-shadow:
-    0 -25px 60px rgba(0, 0, 0, 0.9),
-    inset 0 15px 30px rgba(255, 255, 255, 0.05);
+    0 -6px 70px rgba(0, 0, 0, 122),
+    inset 0 15px 30px rgba(0, 0, 255, 0);
 }
 
 #player-hand {
@@ -785,6 +785,20 @@ body::before {
     height: 55px;
   }
 
+  @keyframes colorFlash {
+    0% {
+      transform: translate(-60%, -270%) scale(1);
+    }
+
+    50% {
+      transform: translate(-60%, -270%) scale(1.2);
+    }
+
+    100% {
+      transform: translate(-60%, -270%) scale(1);
+    }
+  }  
+
   #my-card-count {
     margin-left: 460px;
     font-size: 18px;
@@ -879,6 +893,20 @@ body::before {
     transform: translate(-60%, -270%);
   }
 
+  @keyframes colorFlash {
+    0% {
+      transform: translate(-60%, -270%) scale(1);
+    }
+
+    50% {
+      transform: translate(-60%, -270%) scale(1.2);
+    }
+
+    100% {
+      transform: translate(-60%, -270%) scale(1);
+    }
+  }
+
   #your-turn-indicator {
     position: absolute;
     left: 12px;
@@ -967,6 +995,20 @@ body::before {
     width: 28px;
     height: 28px;
     transform: translate(-60%, -260%);
+  }
+
+  @keyframes colorFlash {
+    0% {
+      transform: translate(-60%, -260%) scale(1);
+    }
+
+    50% {
+      transform: translate(-60%, -260%) scale(1.2);
+    }
+
+    100% {
+      transform: translate(-60%, -260%) scale(1);
+    }
   }
 
   #your-turn-indicator {
@@ -1099,6 +1141,20 @@ body::before {
     width: 38px;
     height: 38px;
     transform: translate(-60%, -230%);
+  }
+
+  @keyframes colorFlash {
+    0% {
+      transform: translate(-60%, -230%) scale(1);
+    }
+
+    50% {
+      transform: translate(-60%, -230%) scale(1.2);
+    }
+
+    100% {
+      transform: translate(-60%, -230%) scale(1);
+    }
   }
 
   #your-turn-indicator {
@@ -1266,6 +1322,20 @@ body::before {
     transform: translate(-60%, -240%);
   }
 
+  @keyframes colorFlash {
+    0% {
+      transform: translate(-60%, -240%) scale(1);
+    }
+
+    50% {
+      transform: translate(-60%, -240%) scale(1.2);
+    }
+
+    100% {
+      transform: translate(-60%, -240%) scale(1);
+    }
+  }
+
   #your-turn-indicator {
     position: absolute;
     left: 8px;
@@ -1358,5 +1428,19 @@ body::before {
     width: 32px;
     height: 32px;
     transform: translate(-60%, -175%);
+  }
+
+  @keyframes colorFlash {
+    0% {
+      transform: translate(-60%, -175%) scale(1);
+    }
+
+    50% {
+      transform: translate(-60%, -175%) scale(1.2);
+    }
+
+    100% {
+      transform: translate(-60%, -175%) scale(1);
+    }
   }
 }
