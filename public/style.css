@@ -103,6 +103,10 @@ body::before {
   text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
 }
 
+#ruleBook {
+  color: white;
+}
+
 #playersBar {
   position: absolute;
   top: -45px;
@@ -589,6 +593,30 @@ body::before {
   }
 }
 
+#ruleBook table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+#ruleBook th,
+#ruleBook td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ffd700;
+  color: white;
+}
+
+#ruleBook th {
+  background: rgba(255, 215, 0, 0.2);
+  color: #ffd700;
+  text-align: center;
+}
+
+#ruleBook img {
+  vertical-align: middle;
+}
+
 .shake {
   animation: shakeTable 0.4s ease;
 }
@@ -797,7 +825,7 @@ body::before {
     100% {
       transform: translate(-60%, -270%) scale(1);
     }
-  }  
+  }
 
   #my-card-count {
     margin-left: 460px;
@@ -1443,4 +1471,95 @@ body::before {
       transform: translate(-60%, -175%) scale(1);
     }
   }
+}
+
+/* =============================================================
+   HOME PAGE
+   ============================================================= */
+#homePage {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  background: radial-gradient(circle at center, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.9));
+  backdrop-filter: blur(8px);
+  z-index: 50;
+  color: white;
+  text-align: center;
+}
+
+.home-container {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(255, 215, 0, 0.2);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  max-width: 600px;
+  backdrop-filter: blur(10px);
+}
+
+.game-title {
+  font-size: 56px;
+  color: gold;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.game-details {
+  font-size: 18px;
+  line-height: 1.5;
+  margin-bottom: 30px;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+}
+
+.home-rules {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  text-align: left;
+}
+
+.home-rules h3 {
+  color: gold;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.home-rules ul {
+  padding-left: 20px;
+  margin-bottom: 15px;
+}
+
+.home-rules li {
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+.play-now-btn {
+  width: 260px;
+  padding: 15px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: bold;
+  background: linear-gradient(145deg, #cfa000, #ffd700);
+  color: black;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.play-now-btn:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.8), 0 0 15px rgba(255, 215, 0, 0.5);
 }

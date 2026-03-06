@@ -1,114 +1,235 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>UNO NO Mercy</title>
   <link rel="icon" href="favicon.ico" />
   <link rel="stylesheet" href="style.css">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+
 <body>
 
-<!-- ================= LOBBY ================= -->
-<div id="lobby">
-  <h2>UNO No Mercy</h2>
+  <!-- ================= HOME PAGE ================= -->
+  <div id="homePage">
+    <div class="home-container">
+      <h1 class="game-title">UNO No Mercy</h1>
+      <p class="game-details">
+        UNO No Mercy is a ruthless version of the classic card game! With relentless Wild Draw 6, Draw 10, and Roulette
+        cards, the action never stops. The rules are brutal, stacking is allowed, and if you get 25 cards in your hand,
+        you're out!
+      </p>
 
-  <input id="name" placeholder="Your Name" />
-
-  <button onclick="createRoom()">Create Room</button>
-
-  <input id="roomInput" placeholder="Room ID" />
-  <button onclick="joinRoom()">Join Room</button>
-
-  <h3>Room ID: <span id="roomId"></span></h3>
-
-  <h3>Players:</h3>
-  <ul id="players"></ul>
-
-  <button id="startBtn" onclick="startGame()">Start Game</button>
-</div>
-
-
-<!-- ================= GAME ================= -->
-<div id="game" style="display:none;">
-
-  <!-- Direction Arrow -->
-  <img id="direction-arrow" src="images/arrow.png" />
-
-  <!-- Light Bulb (Current Color + Penalty) -->
-  <div id="light-bulb">
-    <div id="penalty-badge"></div>
-  </div>
-
-  <!-- Center Table -->
-  <div id="table">
-
-    <!-- Draw Pile -->
-    <div id="draw-pile" class="pile">
-      <img src="cards/card_back.png" onclick="drawCard()" />
-    </div>
-
-    <!-- Discard Pile -->
-    <div id="discard-pile" class="pile">
-      <img id="top-card-img" />
-    </div>
-
-  </div>
-
-  <!-- Opponents -->
-  <div id="opponents-container"></div>
-
-  <!-- Player Hand Area -->
-  <div id="handContainer">
-    <div id="your-turn-indicator"></div>
-    <div id="my-card-count"></div>
-    <div id="player-hand"></div>
-  </div>
-
-  <!-- ================= MODALS ================= -->
-
-  <!-- Wild Color Modal -->
-  <div id="colorModal" class="modal" style="display:none;">
-    <div class="modal-box">
-      <h3>Select Next Color</h3>
-      <div class="color-grid">
-        <button onclick="pickColor('red')" style="background:red;"></button>
-        <button onclick="pickColor('blue')" style="background:blue;"></button>
-        <button onclick="pickColor('green')" style="background:green;"></button>
-        <button onclick="pickColor('yellow')" style="background:yellow;"></button>
+      <div class="home-rules">
+        <h3>How to Play:</h3>
+        <ul>
+          <li><strong>Create a Room:</strong> Enter your name and click 'Create Room'. Share the generated Room ID with
+            your friends.</li>
+          <li><strong>Join a Room:</strong> Enter your name, the Room ID provided by your friend, and click 'Join Room'.
+          </li>
+          <li><strong>Start Game:</strong> The host (creator) can click 'Start Game' once everyone has joined.</li>
+        </ul>
+        <h3>Quick Rules:</h3>
+        <ul>
+          <li><strong>7s Swap:</strong> Playing a 7 forces you to swap your hand with another player.</li>
+          <li><strong>0s Pass:</strong> Playing a 0 forces ALL players to pass their hands to the next player.</li>
+          <li><strong>Stacking:</strong> Draw cards can be stacked to punish the next player!</li>
+          <li><strong>Elimination:</strong> Cross 25 cards in hand? You're immediately eliminated!</li>
+        </ul>
+        <p>For complete rules, check the Rule Book in the lobby.</p>
       </div>
-      <button id="colorCancelBtn" onclick="cancelWild()">Cancel</button>
+
+      <button class="play-now-btn" onclick="goToLobby()">Play Now</button>
     </div>
   </div>
 
-  <!-- Swap Modal -->
-  <div id="swapModal" class="modal" style="display:none;">
+  <script>
+    function goToLobby() {
+      document.getElementById('homePage').style.display = 'none';
+      document.getElementById('lobby').style.display = 'flex';
+    }
+  </script>
+
+  <!-- ================= LOBBY ================= -->
+  <div id="lobby" style="display:none;">
+    <h2>UNO No Mercy</h2>
+
+    <input id="name" placeholder="Your Name" />
+
+    <button onclick="createRoom()">Create Room</button>
+
+    <input id="roomInput" placeholder="Room ID" />
+    <button onclick="joinRoom()">Join Room</button>
+
+    <h3>Room ID: <span id="roomId"></span></h3>
+
+    <h3>Players:</h3>
+    <ul id="players"></ul>
+
+    <button id="startBtn" onclick="startGame()">Start Game</button>
+
+    <button onclick="showRuleBook()">Rule Book</button>
+  </div>
+
+  <div id="ruleBook" class="modal" style="display:none;">
     <div class="modal-box">
-      <h3>Choose Player to Swap</h3>
-      <div id="swapPlayerList"></div>
-      <button onclick="cancelSwap()">Cancel</button>
+      <h3>Rule Book</h3>
+      <table border="3">
+        <tr>
+          <th colspan="2">Special Rules</th>
+        </tr>
+        <tr>
+          <td><img src="cards/red_7.png" width="50" /></td>
+          <td>7's Swap - When you play a 7 card of any color, you MUST swap your hand with another player of your
+            choice. Play then continues in current order.</td>
+        </tr>
+        <tr>
+          <td><img src="cards/red_0.png" width="50" /></td>
+          <td>0's Pass - When you play a 0 card of any color, ALL players must pass their hand to the next player in the
+            current direction of play.</td>
+        </tr>
+        <tr>
+          <th colspan="2">Wild Cards</th>
+        </tr>
+        <tr>
+          <td><img src="cards/wild_draw4.png" width="50" /></td>
+          <td>Wild Draw 4 - Reverse the direction of play and force the next player to draw 4 cards. You can choose the
+            next color.</td>
+        </tr>
+        <tr>
+          <td><img src="cards/wild_draw6.png" width="50" /></td>
+          <td>Wild Draw 6 - Force the next player to draw 6 cards. You can choose the next color.</td>
+        </tr>
+        <tr>
+          <td><img src="cards/wild_draw10.png" width="50" /></td>
+          <td>Wild Draw 10 - Force the next player to draw 10 cards. You can choose the next color.</td>
+        </tr>
+        <tr>
+          <td><img src="cards/wild_roulette.png" width="50" /></td>
+          <td>Roulette - The next player must draw cards until they draw a card of the color you choose. You can choose
+            the color.</td>
+        </tr>
+        <tr>
+          <th colspan="2">Action Cards</th>
+        </tr>
+        <tr>
+          <td><img src="cards/red_draw2.png" width="50" /></td>
+          <td>Draw 2 - Force the next player to draw 2 cards. Stacking is allowed.</td>
+        </tr>
+        <tr>
+          <td><img src="cards/red_draw4.png" width="50" /></td>
+          <td>Draw 4 - Force the next player to draw 4 cards. Stacking is allowed.</td>
+        </tr>
+        <tr>
+          <td><img src="cards/red_skip.png" width="50" /></td>
+          <td>Skip - Skip the next player's turn.</td>
+        </tr>
+        <tr>
+          <td><img src="cards/red_skip_all.png" width="50" /></td>
+          <td>Skip All - Skip all other players' turns, effectively skipping back to your turn.</td>
+        </tr>
+        <tr>
+          <td><img src="cards/red_reverse.png" width="50" /></td>
+          <td>Reverse - Reverse the direction of play.</td>
+        </tr>
+        <tr>
+          <td><img src="cards/red_discard_all.png" width="50" /></td>
+          <td>Discard All - Discard all cards of the current color from your hand.</td>
+        </tr>
+        <tr>
+          <th colspan="2">Elimination Rule</th>
+        </tr>
+        <tr>
+          <td colspan="2">If a player's hand reaches 25 or more cards, they are eliminated from the game.</td>
+        </tr>
+      </table>
+      <button onclick="hideRuleBook()">Close</button>
     </div>
   </div>
 
-  <!-- Elimination Drop Overlay -->
-  <div id="elimination-overlay"></div>
+  <!-- ================= GAME ================= -->
+  <div id="game" style="display:none;">
 
-</div>
+    <!-- Direction Arrow -->
+    <img id="direction-arrow" src="images/arrow.png" />
+
+    <!-- Light Bulb (Current Color + Penalty) -->
+    <div id="light-bulb">
+      <div id="penalty-badge"></div>
+    </div>
+
+    <!-- Center Table -->
+    <div id="table">
+
+      <!-- Draw Pile -->
+      <div id="draw-pile" class="pile">
+        <img src="cards/card_back.png" onclick="drawCard()" />
+      </div>
+
+      <!-- Discard Pile -->
+      <div id="discard-pile" class="pile">
+        <img id="top-card-img" />
+      </div>
+
+    </div>
+
+    <!-- Opponents -->
+    <div id="opponents-container"></div>
+
+    <!-- Player Hand Area -->
+    <div id="handContainer">
+      <div id="your-turn-indicator"></div>
+      <div id="my-card-count"></div>
+      <div id="player-hand"></div>
+    </div>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- Wild Color Modal -->
+    <div id="colorModal" class="modal" style="display:none;">
+      <div class="modal-box">
+        <h3>Select Next Color</h3>
+        <div class="color-grid">
+          <button onclick="pickColor('red')" style="background:red;"></button>
+          <button onclick="pickColor('blue')" style="background:blue;"></button>
+          <button onclick="pickColor('green')" style="background:green;"></button>
+          <button onclick="pickColor('yellow')" style="background:yellow;"></button>
+        </div>
+        <button id="colorCancelBtn" onclick="cancelWild()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Swap Modal -->
+    <div id="swapModal" class="modal" style="display:none;">
+      <div class="modal-box">
+        <h3>Choose Player to Swap</h3>
+        <div id="swapPlayerList"></div>
+        <button onclick="cancelSwap()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Elimination Drop Overlay -->
+    <div id="elimination-overlay"></div>
+
+  </div>
 
 
-<!-- ================= WINNER SCREEN ================= -->
-<div id="winner-screen" style="display:none;">
-  <div class="winner-box">
-    <h1 id="winner-name"></h1>
-    <div class="winner-buttons">
-      <button id="rematchBtn" onclick="rematch()">Play Again</button>
-      <button id="exitBtn" onclick="exitGameHandler()">Exit</button>
+  <!-- ================= WINNER SCREEN ================= -->
+  <div id="winner-screen" style="display:none;">
+    <div class="winner-box">
+      <h1 id="winner-name"></h1>
+      <div class="winner-buttons">
+        <button id="rematchBtn" onclick="rematch()">Play Again</button>
+        <button id="exitBtn" onclick="exitGameHandler()">Exit</button>
+      </div>
     </div>
   </div>
-</div>
 
 
-<!-- ================= SCRIPTS ================= -->
-<script src="/socket.io/socket.io.js"></script>
-<script src="client.js"></script>
+  <!-- ================= SCRIPTS ================= -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="client.js"></script>
 
 </body>
+
 </html>

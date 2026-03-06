@@ -827,3 +827,13 @@ function createCurvedHand(container, total) {
     container.appendChild(img);
   }
 }
+
+function showRuleBook() {
+  document.getElementById('ruleBook').style.display = 'flex';
+  modalActive = true;
+}
+
+function hideRuleBook() {
+  document.getElementById('ruleBook').style.display = 'none';
+  modalActive = false;
+}

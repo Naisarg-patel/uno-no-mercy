@@ -125,7 +125,9 @@ io.on("connection", socket => {
 
       RouletteDraw(game, victim, chosenColor, helpers);
       if (checkWin(game)) {
-        io.to(roomId).emit("gameOver", { winner: victim });
+        sendGameState(roomId);
+        const winner = game.players.find(p => p.active) || null;
+        io.to(roomId).emit("gameOver", { winner });
         return;
       }
       game.rouletteActive = false;
@@ -161,6 +163,7 @@ io.on("connection", socket => {
 
     // 2. If play was successful, proceed
     if (checkWin(game)) {
+      sendGameState(roomId);
       io.to(roomId).emit("gameOver", { winner: currentPlayer });
       return;
     }
@@ -174,6 +177,13 @@ io.on("connection", socket => {
       nextPerson = game.players[game.currentPlayerIndex];
     }
 
+    if (game.gameOver || checkWin(game)) {
+      sendGameState(roomId);
+      const winner = game.players.find(p => p.hand.length === 0 && p.active) || game.players.find(p => p.active) || currentPlayer;
+      io.to(roomId).emit("gameOver", { winner });
+      return;
+    }
+
     sendGameState(roomId);
   });
 
@@ -183,7 +193,7 @@ io.on("connection", socket => {
 
     const game = room.game;
     const currentPlayer = game.players[game.currentPlayerIndex];
-    
+
     // wrapper to broadcast elimination whenever it happens
     const checkElimination = (g, p, h) => {
       const eliminated = rawCheckElimination(g, p, h);
@@ -230,6 +240,14 @@ io.on("connection", socket => {
         nextPlayer(game); // Only skip if they STILL can't play (safety)
       }
     }
+
+    if (game.gameOver || checkWin(game)) {
+      sendGameState(roomId);
+      const winner = game.players.find(p => p.hand.length === 0 && p.active) || game.players.find(p => p.active) || currentPlayer;
+      io.to(roomId).emit("gameOver", { winner });
+      return;
+    }
+
     sendGameState(roomId);
   });
 
@@ -264,6 +282,12 @@ io.on("connection", socket => {
       nextPerson = game.players[game.currentPlayerIndex];
     }
 
+    if (game.gameOver || checkWin(game)) {
+      sendGameState(roomId);
+      const winner = game.players.find(p => p.hand.length === 0 && p.active) || game.players.find(p => p.active) || player1;
+      io.to(roomId).emit("gameOver", { winner });
+      return;
+    }
 
     sendGameState(roomId);
   });
@@ -397,12 +421,12 @@ function sendGameState(roomId) {
     handCount: p.hand.length,
     active: p.active
   }));
-  
+
   const fristCard = game.discardPile[game.discardPile.length - 1] || null;
 
   room.players.forEach((player, index) => {
     const isMyTurn = game.currentPlayerIndex === index;
-    
+
     io.to(player.id).emit("gameState", {
       hand: player.hand,
       topCard: fristCard,
@@ -411,7 +435,7 @@ function sendGameState(roomId) {
       currentColor: game.currentColor,
       pendingDrawPenalties: game.pendingDrawPenalties || 0,
       rouletteActive: game.rouletteActive || false,
-      rouletteVictimId: game.rouletteVictimId || null, 
+      rouletteVictimId: game.rouletteVictimId || null,
       players: playerStatus,
       reverse: game.direction === -1
     });
