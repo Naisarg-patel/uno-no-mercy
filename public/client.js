@@ -1,4 +1,9 @@
-const socket = io();
+const socket = io({
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000
+});
+
 let currentRoom = null;
 let isMyTurn = false;
 let myHand = [];
@@ -26,6 +31,8 @@ const sounds = {
   reverse: new Audio("/sounds/reverse.mp3"),
   skip: new Audio("/sounds/skip.mp3"),
 };
+
+
 
 // preload all audio and set volumes
 Object.values(sounds).forEach(a => {
