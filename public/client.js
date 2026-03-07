@@ -474,6 +474,15 @@ socket.on("gameState", (data) => {
   renderHand();
   if (data.players) renderOpponents(data.players, data.currentTurnName);
 
+  if (window.currentTurnName !== data.currentTurnName) {
+    if (data.isMyTurn) {
+      showToast("Your Turn!");
+    } else if (data.currentTurnName) {
+      showToast(`${data.currentTurnName}'s Turn`);
+    }
+    window.currentTurnName = data.currentTurnName;
+  }
+
   window.lastGameState = data;
 
   const turnIndicator = document.getElementById("your-turn-indicator");
@@ -600,8 +609,22 @@ function exitGameHandler() {
 }
 
 
+function showToast(msg, duration = 2000) {
+  // remove any existing toast to avoid overlap mess
+  const existingToasts = document.querySelectorAll('.toast-msg');
+  existingToasts.forEach(t => t.remove());
+
+  const toast = document.createElement("div");
+  toast.className = "toast-msg";
+  toast.innerText = msg;
+  toast.style.zIndex = "10000";
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), duration);
+}
+
 socket.on("error", (msg) => {
   console.log(msg);
+  showToast(msg);
 });
 
 function renderHand() {

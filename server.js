@@ -89,11 +89,11 @@ io.on("connection", socket => {
       return;
     }
     if (room.players.length < 2) {
-      console.log("error", "Need at least 2 players");
+      socket.emit("error", "Need at least 2 players");
       return;
     }
     if (room.hostId !== socket.id) {
-      console.log("error", "Only the host can start the game!");
+      socket.emit("error", "Only the host can start the game!");
       return;
     }
     room.game = creategame(room.players);
