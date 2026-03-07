@@ -2,22 +2,25 @@
 function applySpecialEffect(game, player, card, nextPlayer, helpers) {
   const { checkWin, checkElimination, applyDiscardAll, sevenRule, zeroRule } = helpers;
 
-  if(!player.active){
+  if (!player.active) {
     return;
   }
 
   console.log(`Applying special effect of ${card.specialMove}`);
 
   switch (card.specialMove) {
-    
+
     case "reverse":
       game.direction *= -1;
+      if (game.players.filter(p => p.active).length === 2) {
+        nextPlayer(game);
+      }
       break;
 
     case "skip":
       nextPlayer(game);
       break;
-    
+
     case "draw2":
       game.pendingDrawPenalties += 2;
       break;
@@ -31,7 +34,7 @@ function applySpecialEffect(game, player, card, nextPlayer, helpers) {
     case "wild_draw10":
       game.pendingDrawPenalties += 10;
       game.currentColor = player.isAI ? chooseColor(player) : game.currentColor;
-      break;      
+      break;
 
     case "discard_all":
       applyDiscardAll(game, player);
@@ -46,7 +49,10 @@ function applySpecialEffect(game, player, card, nextPlayer, helpers) {
       game.direction *= -1;
       game.pendingDrawPenalties += 4;
       game.currentColor = player.isAI ? chooseColor(player) : game.currentColor;
-      break;  
+      if (game.players.filter(p => p.active).length === 2) {
+        nextPlayer(game);
+      }
+      break;
 
     case "roulette":
       let victimIndex = (game.currentPlayerIndex + game.direction + game.players.length) % game.players.length;
@@ -58,12 +64,12 @@ function applySpecialEffect(game, player, card, nextPlayer, helpers) {
       break;
 
     case "seven":
-      if(player.isAI){
+      if (player.isAI) {
         sevenRule(game, player);
         nextPlayer(game);
         return true;
       }
-      else{
+      else {
         game.waitingForSeven = true;
         game.sevenInitiatorId = player.id;
         return {
@@ -73,14 +79,14 @@ function applySpecialEffect(game, player, card, nextPlayer, helpers) {
             .map(p => ({ id: p.id, name: p.name }))
         };
       }
-      break;  
+      break;
 
     case "zero":
       zeroRule(game, player);
-      break;  
+      break;
   }
 }
- 
+
 
 function applyDiscardAll(game, player) {
   const color = game.currentColor;
@@ -110,7 +116,7 @@ function applyDiscardAll(game, player) {
   } else if (discarded.length > 0) {
     // unlikely: no card yet in discard pile, just push them
     game.discardPile.push(...discarded);
-    
+
   }
 }
 
@@ -139,29 +145,29 @@ function chooseColor(player) {
 
 function RouletteDraw(game, player, color, helpers) {
   game.currentColor = color;
-  const {checkElimination, reshuffle} = helpers;
+  const { checkElimination, reshuffle } = helpers;
 
-    while (true) {
-       if (!player.active) return; 
+  while (true) {
+    if (!player.active) return;
 
-        if(game.drawPile.length === 0){
-            reshuffle(game);
-            if(game.drawPile.length === 0){
-                return;
-            }
-        }    
-
-        const card = game.drawPile.pop();
-        player.hand.push(card);
-
-         if (card.color === color) {
-            console.log(`Roulette success! Drew a ${card.color} ${card.value}`);
-            break;
-        }
-            if(helpers.checkElimination(game, player, helpers)){
-              break;
-            }       
+    if (game.drawPile.length === 0) {
+      reshuffle(game);
+      if (game.drawPile.length === 0) {
+        return;
+      }
     }
+
+    const card = game.drawPile.pop();
+    player.hand.push(card);
+
+    if (card.color === color) {
+      console.log(`Roulette success! Drew a ${card.color} ${card.value}`);
+      break;
+    }
+    if (helpers.checkElimination(game, player, helpers)) {
+      break;
+    }
+  }
 }
 
 function sevenRule(game, player) {
